@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Remove this line when the paper is announced. Until then the page is
+     reachable by URL but not indexed by search engines. -->
+<meta name="robots" content="noindex, nofollow">
+
+<title>Bayesian REFoCUS</title>
+<meta name="description" content="Recovering the full multistatic dataset from a single encoded ultrasound acquisition with a flow-matching diffusion prior and diffusion posterior sampling.">
+
+<!-- Social preview. Add docs/static/images/og.png (1200x630) and uncomment.
+<meta property="og:title" content="Bayesian REFoCUS">
+<meta property="og:description" content="Recovering the full multistatic dataset from a single encoded ultrasound acquisition.">
+<meta property="og:image" content="https://swpenninga.github.io/deep-bayesian-refocus/static/images/og.png">
+<meta property="og:url" content="https://swpenninga.github.io/deep-bayesian-refocus/">
+<meta name="twitter:card" content="summary_large_image">
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<!-- ===================== hero ===================== -->
+<header class="hero">
+  <div class="wrap">
+
+    <!-- TODO: confirm venue/status before announcing. -->
+    <span class="venue">Preprint &middot; under review</span>
+
+    <!-- TODO: replace with the exact manuscript title. -->
+    <h1>Bayesian REFoCUS</h1>
+
+    <p class="tagline">
+      Recovering the full multistatic dataset from a single encoded ultrasound
+      acquisition with a flow-matching diffusion prior.
+    </p>
+
+    <!-- TODO: fill in the co-author list and confirm affiliations/order. -->
+    <p class="authors">
+      <a href="#">Simon Penninga</a><sup>1</sup>,
+      <a href="#">Co-author</a><sup>1</sup>,
+      <a href="#">Co-author</a><sup>2</sup>,
+      <a href="#">Co-author</a><sup>1</sup>
+    </p>
+    <p class="affiliations">
+      <sup>1</sup>Eindhoven University of Technology &nbsp;&middot;&nbsp;
+      <sup>2</sup>Affiliation
+    </p>
+
+    <nav class="links">
+      <!-- Drop the PDF at docs/static/paper.pdf, then remove aria-disabled. -->
+      <a class="btn" href="static/paper.pdf" aria-disabled="true">
+        <svg viewBox="0 0 384 512"><path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/></svg>
+        Paper
+      </a>
+      <a class="btn" href="https://arxiv.org/abs/XXXX.XXXXX" aria-disabled="true">
+        <svg viewBox="0 0 448 512"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm96 96H288c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 96H288c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
+        arXiv
+      </a>
+      <a class="btn" href="https://github.com/swpenninga/deep-bayesian-refocus">
+        <svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg>
+        Code
+      </a>
+      <a class="btn" href="#" aria-disabled="true">
+        <svg viewBox="0 0 448 512"><path d="M448 80v48c0 44.2-100.3 80-224 80S0 172.2 0 128V80C0 35.8 100.3 0 224 0S448 35.8 448 80zM393.2 214.7c20.8-7.4 39.9-16.9 54.8-28.6V288c0 44.2-100.3 80-224 80S0 332.2 0 288V186.1c14.9 11.8 34 21.2 54.8 28.6C99.7 230.7 159.5 240 224 240s124.3-9.3 169.2-25.3zM0 346.1c14.9 11.8 34 21.2 54.8 28.6C99.7 390.7 159.5 400 224 400s124.3-9.3 169.2-25.3c20.8-7.4 39.9-16.9 54.8-28.6V432c0 44.2-100.3 80-224 80S0 476.2 0 432V346.1z"/></svg>
+        Data
+      </a>
+      <a class="btn" href="https://huggingface.co/zeahub" aria-disabled="true">
+        <svg viewBox="0 0 576 512"><path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3zM7.5 117.2C3 118.9 0 123.2 0 128s3 9.1 7.5 10.8L64 160l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L128 160l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L128 96 106.8 39.5C105.1 35 100.8 32 96 32s-9.1 3-10.8 7.5L64 96 7.5 117.2zm352 256c-4.5 1.7-7.5 6-7.5 10.8s3 9.1 7.5 10.8L416 416l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L480 416l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L480 352l-21.2-56.5c-1.7-4.5-6-7.5-10.8-7.5s-9.1 3-10.8 7.5L416 352l-56.5 21.2z"/></svg>
+        Model weights
+      </a>
+    </nav>
+
+  </div>
+</header>
+
+<!-- ===================== teaser ===================== -->
+<section id="teaser">
+  <div class="wrap">
+    <figure>
+      <div class="slot-empty tall">Teaser figure</div>
+      <figcaption>
+        <!-- TODO: caption the teaser once the final figure is in. -->
+        Placeholder for the headline result.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== abstract ===================== -->
+<section id="abstract">
+  <div class="wrap prose">
+    <h2>Abstract</h2>
+    <!-- TODO: replace with the manuscript abstract verbatim. -->
+    <p>
+      Placeholder. A flow-matching diffusion prior is trained directly on raw
+      multistatic IQ data and inverted with diffusion posterior sampling to
+      recover the complete multistatic dataset from a single encoded acquisition.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== method ===================== -->
+<section id="method">
+  <div class="wrap">
+    <h2>Method</h2>
+    <div class="prose">
+      <p><!-- TODO: method summary. --></p>
+    </div>
+    <figure>
+      <div class="slot-empty">Method / pipeline figure</div>
+      <figcaption></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== results ===================== -->
+<section id="results">
+  <div class="wrap">
+    <h2>Results</h2>
+
+    <figure>
+      <div class="slot-empty tall">Results figure &mdash; in vivo</div>
+      <figcaption></figcaption>
+    </figure>
+
+    <figure>
+      <div class="slot-empty tall">Results figure &mdash; phantom</div>
+      <figcaption></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== bibtex ===================== -->
+<section id="bibtex">
+  <div class="wrap">
+    <h2>BibTeX</h2>
+    <pre class="bibtex"><button class="copy-btn" data-copy="#bibtex-entry">copy</button><code id="bibtex-entry">@article{penninga2026refocus,
+  title   = {TODO},
+  author  = {Penninga, Simon and TODO},
+  journal = {TODO},
+  year    = {2026}
+}</code></pre>
+  </div>
+</section>
+
+<!-- ===================== footer ===================== -->
+<footer>
+  <div class="wrap">
+    <p>
+      Code released under the
+      <a href="https://github.com/swpenninga/deep-bayesian-refocus/blob/main/LICENSE">Apache&nbsp;2.0 licence</a>.
+    </p>
+    <p>
+      Page source lives in <code>docs/</code> of the
+      <a href="https://github.com/swpenninga/deep-bayesian-refocus">project repository</a>.
+    </p>
+  </div>
+</footer>
+
+<script src="static/js/main.js"></script>
+</body>
+</html>
