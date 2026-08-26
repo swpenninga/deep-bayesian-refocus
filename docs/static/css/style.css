@@ -54,12 +54,7 @@ h2 {
   letter-spacing: -0.01em;
 }
 
-h3 { font-size: 1.1rem; margin: 2rem 0 0.5rem; }
-
 p { margin: 0 0 1.1rem; }
-
-.prose { max-width: var(--measure); }
-.prose p:last-child { margin-bottom: 0; }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -194,24 +189,6 @@ figcaption b { color: var(--text); font-weight: 600; }
   padding: 1.5rem;
 }
 .slot-empty.tall { min-height: 24rem; }
-
-/* ---- key-points grid ---------------------------------------------------- */
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 1.25rem;
-  margin-top: 2rem;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1.25rem 1.35rem;
-}
-.card h3 { margin: 0 0 0.4rem; font-size: 1rem; font-family: var(--font-sans); font-weight: 600; }
-.card p { margin: 0; font-size: 0.93rem; color: var(--muted); line-height: 1.55; }
 
 /* ---- bibtex ------------------------------------------------------------- */
 
