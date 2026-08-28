@@ -43,7 +43,9 @@
   var PAD = 26;
   var LABEL = 14;         // reserved above and below for the tx end labels
 
-  var frame = N - 1;
+  // Frame 0 is the sampler's initial draw, so the slider opens on pure noise
+  // at the left end and runs right into the converged estimate.
+  var frame = 0;
   var playing = false;
   var showTruth = false;
   var ready = false;
