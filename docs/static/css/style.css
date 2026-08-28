@@ -270,25 +270,6 @@ footer p { margin: 0 0 0.5rem; }
   pointer-events: none;
 }
 
-/* Badge that replaces the metrics while the truth frame is shown. */
-.dps-truth-badge {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.65rem;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bg);
-  background: var(--accent);
-  border-radius: 4px;
-  padding: 0.1rem 0.45rem;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  pointer-events: none;
-}
-.dps.is-truth .dps-truth-badge { opacity: 1; }
-
 /* ---- loading ---- */
 
 .dps-loading {
@@ -381,19 +362,6 @@ footer p { margin: 0 0 0.5rem; }
   cursor: grab;
 }
 .dps-slider:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 4px; }
-
-.dps-truth-toggle {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.82rem;
-  color: var(--muted);
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-}
-.dps-truth-toggle input { accent-color: var(--accent); cursor: pointer; }
 
 @media (max-width: 820px) {
   .dps-stage { grid-template-columns: 1fr; }

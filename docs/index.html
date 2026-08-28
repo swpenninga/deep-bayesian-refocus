@@ -101,9 +101,6 @@
         </button>
         <input class="dps-slider" data-dps="slider" type="range" min="0" max="100" step="1"
                aria-label="Reverse-diffusion step" disabled>
-        <label class="dps-truth-toggle">
-          <input type="checkbox" data-dps="truth" disabled> ground truth
-        </label>
       </div>
 
       <div class="dps-stage">
@@ -111,14 +108,12 @@
         <div class="dps-panel">
           <canvas data-dps="stack"></canvas>
           <span class="dps-tag">data set x&#770; &middot; every 10th tx</span>
-          <span class="dps-truth-badge">ground truth</span>
           <div class="dps-loading"><span class="dps-loading-label">loading</span><div class="dps-progress"><span data-dps="bar"></span></div></div>
         </div>
 
         <div class="dps-panel">
           <canvas data-dps="bmode"></canvas>
           <span class="dps-tag">focused B-mode</span>
-          <span class="dps-truth-badge">ground truth</span>
           <div class="dps-loading"><span class="dps-loading-label">loading</span><div class="dps-progress"><span data-dps="bar"></span></div></div>
         </div>
 

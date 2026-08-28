@@ -26,7 +26,6 @@
   var bmodeCv = root.querySelector("[data-dps=bmode]");
   var slider = root.querySelector("[data-dps=slider]");
   var playBtn = root.querySelector("[data-dps=play]");
-  var truthBox = root.querySelector("[data-dps=truth]");
   var bars = root.querySelectorAll("[data-dps=bar]");
 
   var sctx = stackCv.getContext("2d");
@@ -47,7 +46,6 @@
   // at the left end and runs right into the converged estimate.
   var frame = 0;
   var playing = false;
-  var showTruth = false;
   var ready = false;
   var raf = null, lastTick = 0;
   var FPS = 14;
@@ -67,8 +65,7 @@
   }
 
   function loadAll() {
-    var names = M.bmode.atlases.concat([M.bmode.truth],
-                                       M.slices.atlases, [M.slices.truth]);
+    var names = M.bmode.atlases.concat(M.slices.atlases);
     var done = 0;
     return Promise.all(names.map(function (n) {
       return load(n).then(function (im) {
@@ -83,7 +80,6 @@
   /* ---- atlas addressing ------------------------------------------------ */
 
   function bmodeSrc(i) {
-    if (showTruth) return [images[M.bmode.truth], 0, 0];
     var cfg = M.bmode;
     var a = Math.floor(i / cfg.per_atlas), k = i % cfg.per_atlas;
     return [images[cfg.atlases[a]],
@@ -93,7 +89,6 @@
 
   function sliceSrc(s, i) {
     var cfg = M.slices;
-    if (showTruth) return [images[cfg.truth], s * cfg.tile[0], 0];
     return [images[cfg.atlases[s]],
             (i % cfg.cols) * cfg.tile[0],
             Math.floor(i / cfg.cols) * cfg.tile[1]];
@@ -177,11 +172,7 @@
     sctx.fillText("tx " + M.slices.tx[n - 1], x0 + cardW * spanX, y0 - 5);
   }
 
-  function draw() {
-    drawBmode();
-    drawStack();
-    root.classList.toggle("is-truth", showTruth);
-  }
+  function draw() { drawBmode(); drawStack(); }
 
   /* ---- interaction ----------------------------------------------------- */
 
@@ -192,7 +183,6 @@
   }
 
   slider.addEventListener("input", function () {
-    if (showTruth) { truthBox.checked = false; showTruth = false; }
     setFrame(+slider.value, true);
   });
 
@@ -207,7 +197,6 @@
   }
 
   function play() {
-    if (showTruth) { truthBox.checked = false; showTruth = false; }
     if (frame >= N - 1) setFrame(0);
     playing = true;
     playBtn.classList.add("is-playing");
@@ -227,11 +216,6 @@
     if (playing) stop(); else play();
   });
 
-  truthBox.addEventListener("change", function () {
-    showTruth = truthBox.checked;
-    if (showTruth) stop();
-    draw();
-  });
 
   slider.addEventListener("pointerdown", stop);
 
@@ -245,7 +229,6 @@
       root.classList.add("is-ready");
       slider.disabled = false;
       playBtn.disabled = false;
-      truthBox.disabled = false;
       layout();
     }).catch(function () {
       root.classList.add("is-failed");
