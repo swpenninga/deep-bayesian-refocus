@@ -21,23 +21,16 @@
 
   var BASE = root.dataset.assets || "static/dps/";
   var N = M.n_frames;
-  var TR = M.trajectory;
 
   var stackCv = root.querySelector("[data-dps=stack]");
   var bmodeCv = root.querySelector("[data-dps=bmode]");
-  var sparkCv = root.querySelector("[data-dps=spark]");
   var slider = root.querySelector("[data-dps=slider]");
   var playBtn = root.querySelector("[data-dps=play]");
   var truthBox = root.querySelector("[data-dps=truth]");
   var bars = root.querySelectorAll("[data-dps=bar]");
-  var readouts = {};
-  root.querySelectorAll("[data-out]").forEach(function (el) {
-    readouts[el.dataset.out] = el;
-  });
 
   var sctx = stackCv.getContext("2d");
   var bctx = bmodeCv.getContext("2d");
-  var kctx = sparkCv.getContext("2d");
 
   /* ---- stack geometry ---------------------------------------------------
      Mirrors eval/utils/make_sim_figure.py: a tight up-and-right offset per
@@ -75,7 +68,6 @@
     var names = M.bmode.atlases.concat([M.bmode.truth],
                                        M.slices.atlases, [M.slices.truth]);
     var done = 0;
-    root.classList.add("is-loading");
     return Promise.all(names.map(function (n) {
       return load(n).then(function (im) {
         done += 1;
@@ -130,7 +122,6 @@
     var sh = twoCol ? bh : Math.round(Math.min(bh, sw * 1.45 + 40));
     fit(stackCv, sw, sh);
 
-    fit(sparkCv, sparkCv.parentNode.clientWidth, 46);
     draw();
   }
 
@@ -184,51 +175,11 @@
     sctx.fillText("tx " + M.slices.tx[n - 1], x0 + cardW * spanX, y0 - 5);
   }
 
-  function drawSpark() {
-    var w = sparkCv.clientWidth, h = sparkCv.clientHeight;
-    kctx.clearRect(0, 0, w, h);
-    var y = TR.nmse_db, lo = Math.min.apply(null, y), hi = Math.max.apply(null, y);
-    var px = function (i) { return (i / (N - 1)) * (w - 2) + 1; };
-    var py = function (v) { return h - 4 - ((v - lo) / (hi - lo)) * (h - 10); };
-
-    kctx.beginPath();
-    kctx.moveTo(px(0), h);
-    for (var i = 0; i < N; i++) kctx.lineTo(px(i), py(y[i]));
-    kctx.lineTo(px(N - 1), h);
-    kctx.closePath();
-    kctx.fillStyle = "rgba(125,211,252,0.10)";
-    kctx.fill();
-
-    kctx.beginPath();
-    for (i = 0; i < N; i++) {
-      if (i === 0) kctx.moveTo(px(i), py(y[i])); else kctx.lineTo(px(i), py(y[i]));
-    }
-    kctx.strokeStyle = "#7dd3fc";
-    kctx.lineWidth = 1.4;
-    kctx.stroke();
-
-    kctx.beginPath();
-    kctx.arc(px(frame), py(y[frame]), 3.2, 0, 6.2832);
-    kctx.fillStyle = showTruth ? "#6b7280" : "#e8e9ec";
-    kctx.fill();
+  function draw() {
+    drawBmode();
+    drawStack();
+    root.classList.toggle("is-truth", showTruth);
   }
-
-  function fmt(v, d) { return (v >= 0 ? "" : "−") + Math.abs(v).toFixed(d); }
-
-  function drawReadouts() {
-    var t = showTruth;
-    if (readouts.step) readouts.step.textContent = t ? "—" : TR.step[frame];
-    if (readouts.t) readouts.t.textContent = t ? "—" : TR.t[frame].toFixed(2);
-    if (readouts.nmse) readouts.nmse.textContent =
-      t ? "—" : fmt(TR.nmse_db[frame], 1);
-    if (readouts.corr) readouts.corr.textContent =
-      t ? "—" : TR.complex_corr[frame].toFixed(3);
-    if (readouts.psnr) readouts.psnr.textContent =
-      t ? "—" : fmt(TR.psnr_db[frame], 1);
-    root.classList.toggle("is-truth", t);
-  }
-
-  function draw() { drawBmode(); drawStack(); drawSpark(); drawReadouts(); }
 
   /* ---- interaction ----------------------------------------------------- */
 
@@ -280,20 +231,6 @@
     draw();
   });
 
-  sparkCv.addEventListener("pointerdown", function (e) {
-    sparkCv.setPointerCapture(e.pointerId);
-    scrubSpark(e);
-  });
-  sparkCv.addEventListener("pointermove", function (e) {
-    if (e.buttons) scrubSpark(e);
-  });
-  function scrubSpark(e) {
-    stop();
-    if (showTruth) { truthBox.checked = false; showTruth = false; }
-    var r = sparkCv.getBoundingClientRect();
-    setFrame(Math.round(((e.clientX - r.left) / r.width) * (N - 1)));
-  }
-
   slider.addEventListener("pointerdown", stop);
 
   window.addEventListener("resize", layout);
@@ -303,14 +240,12 @@
   function boot() {
     loadAll().then(function () {
       ready = true;
-      root.classList.remove("is-loading");
       root.classList.add("is-ready");
       slider.disabled = false;
       playBtn.disabled = false;
       truthBox.disabled = false;
       layout();
     }).catch(function () {
-      root.classList.remove("is-loading");
       root.classList.add("is-failed");
     });
   }
