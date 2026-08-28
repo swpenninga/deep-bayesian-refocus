@@ -87,6 +87,76 @@
   </div>
 </section>
 
+<!-- ===================== trajectory viewer ===================== -->
+<section id="trajectory">
+  <div class="wrap">
+    <h2>Watch the posterior resolve</h2>
+    <p class="dps-intro">
+      One posterior sample, guided by <b>16 random-apodisation transmits</b>
+      &mdash; 20&thinsp;% of a complete acquisition. Drag the slider through
+      the 1000-step reverse trajectory: each position is the sampler's current
+      estimate of the <i>complete</i> 80&times;512&times;80 multistatic data set, and the
+      B-mode that estimate focuses to.
+    </p>
+
+    <figure class="dps" id="dps" data-assets="static/dps/">
+      <div class="dps-stage">
+
+        <div class="dps-panel">
+          <canvas data-dps="stack"></canvas>
+          <span class="dps-tag">data set x&#770; &middot; every 10th tx</span>
+          <span class="dps-truth-badge">ground truth</span>
+          <div class="dps-loading"><span class="dps-loading-label">loading</span><div class="dps-progress"><span data-dps="bar"></span></div></div>
+        </div>
+
+        <div class="dps-panel">
+          <canvas data-dps="bmode"></canvas>
+          <span class="dps-tag">focused B-mode</span>
+          <span class="dps-truth-badge">ground truth</span>
+          <div class="dps-loading"><span class="dps-loading-label">loading</span><div class="dps-progress"><span data-dps="bar"></span></div></div>
+        </div>
+
+      </div>
+
+      <div class="dps-controls">
+        <button class="dps-play" data-dps="play" type="button" aria-label="Play" disabled>
+          <svg class="icon-play" viewBox="0 0 384 512"><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 320 512"><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>
+        </button>
+        <input class="dps-slider" data-dps="slider" type="range" min="0" max="99" step="1"
+               aria-label="Reverse-diffusion step" disabled>
+        <label class="dps-truth-toggle">
+          <input type="checkbox" data-dps="truth" disabled> ground truth
+        </label>
+      </div>
+
+      <div class="dps-meta">
+        <div class="dps-spark">
+          <canvas data-dps="spark" aria-hidden="true"></canvas>
+          <figcaption>NMSE against the complete data set &middot; click to scrub</figcaption>
+        </div>
+        <dl class="dps-stats">
+          <div><dt>step</dt><dd data-out="step">1000</dd></div>
+          <div><dt>t</dt><dd data-out="t">0.00</dd></div>
+          <div><dt>NMSE</dt><dd data-out="nmse">&minus;26.1</dd></div>
+          <div><dt>corr</dt><dd data-out="corr">0.999</dd></div>
+          <div><dt>PSNR</dt><dd data-out="psnr">53.0</dd></div>
+        </dl>
+      </div>
+
+      <figcaption>
+        <b>Left:</b> transmits 0, 10, &hellip;, 70 of the estimated data set, stacked
+        back to front. <b>Right:</b> its delay-and-sum reconstruction. Both are held
+        on the ground-truth frame's display scale, so what changes across the
+        trajectory is the recovery and not each frame's own normalisation.
+        NMSE, complex correlation and B-mode PSNR are measured against the complete
+        simulated frame, which the 16-transmit measurement does not contain.
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
 <!-- ===================== bibtex ===================== -->
 <section id="bibtex">
   <div class="wrap">
@@ -114,6 +184,8 @@
   </div>
 </footer>
 
+<script src="static/dps/manifest.js"></script>
+<script src="static/js/dps-viewer.js"></script>
 <script src="static/js/main.js"></script>
 </body>
 </html>
