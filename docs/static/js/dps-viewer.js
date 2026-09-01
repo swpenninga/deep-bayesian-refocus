@@ -37,6 +37,11 @@
      as a separate plane. CARD_AR squashes the 512x80 slice to something that
      fits beside a B-mode without becoming a hairline. */
   var CARD_AR = 2.8;      // card height / card width
+  // RdBu_r puts WHITE at zero, so the white outline the grey envelope panels
+  // used disappears into the card. Outline dark instead, on the card itself;
+  // the card/background contrast carries the outer edge either way.
+  var STROKE = M.slices.domain === "rf"
+    ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)";
   var STEP_X = 0.30;      // per-slice offset, as a fraction of card width
   var STEP_Y = 0.075;     // ... and of card height
   var PAD = 26;
@@ -159,7 +164,7 @@
       var s = sliceSrc(i, frame);
       sctx.drawImage(s[0], s[1], s[2], M.slices.tile[0], M.slices.tile[1],
                      x, y, cardW, cardH);
-      sctx.strokeStyle = "rgba(255,255,255,0.5)";
+      sctx.strokeStyle = STROKE;
       sctx.lineWidth = 1;
       sctx.strokeRect(x + 0.5, y + 0.5, cardW - 1, cardH - 1);
     }
