@@ -191,6 +191,29 @@ figcaption b { color: var(--text); font-weight: 600; }
 }
 .slot-empty.tall { min-height: 24rem; }
 
+/* ---- teaser ------------------------------------------------------------- */
+/* The film is 16:9, so at the full 68rem wrap it stands 612px tall and runs
+   past the fold. Cap it three ways and take whichever is smallest: the column
+   on a phone, a fixed width on a desktop, and the width implied by a share of
+   the viewport height on a short window. Capping width rather than height
+   keeps the aspect ratio exact, so the frame is never letterboxed. Panel
+   treatment matches .dps-panel. */
+.teaser {
+  width: min(100%, 52rem, calc(62vh * 16 / 9));
+  margin: 0 auto 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #000;
+  overflow: hidden;
+  line-height: 0;
+}
+.teaser video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
 /* ---- bibtex ------------------------------------------------------------- */
 
 .bibtex {
