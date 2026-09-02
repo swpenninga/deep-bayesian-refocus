@@ -157,7 +157,8 @@ code, kbd { font-family: var(--font-mono); font-size: 0.9em; }
 
 figure { margin: 0 0 1.5rem; }
 
-figure img {
+figure img,
+figure video {
   display: block;
   width: 100%;
   height: auto;
