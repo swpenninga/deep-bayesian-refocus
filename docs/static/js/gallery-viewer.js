@@ -45,10 +45,25 @@
   ];
   var NCOL = Math.max.apply(null, ROWS.map(function (r) { return r.length; }));
 
+  /* All lower case, including hadamard: these read as a set of options, and
+     capitalising the one that happens to be a surname breaks that. */
   var ENC_LABEL = {
     focused: "focused", diverging: "diverging", wide: "wide",
-    pw: "plane wave", hadamard: "Hadamard", random: "random"
+    pw: "plane wave", hadamard: "hadamard", random: "random"
   };
+
+  /* Presentation order of the transmit sequences, which is not the order the
+     manifest stores them in: this runs from the most focused to the least, so
+     stepping along the row is stepping along a physical axis. Anything the
+     manifest carries but this does not name is appended, so an encoding added
+     to the export still shows up. */
+  var ENC_ORDER = ["focused", "wide", "pw", "diverging", "hadamard", "random"]
+    .filter(function (e) { return M.encodings.indexOf(e) >= 0; })
+    .concat(M.encodings.filter(function (e) {
+      return ["focused", "wide", "pw", "diverging", "hadamard", "random"]
+        .indexOf(e) < 0;
+    }))
+    .map(function (e) { return M.encodings.indexOf(e); });
 
   var GAP = 3;            // px between columns; enough to separate, not to divide
   var GAP_Y = 12;         // more between rows: a label needs air under the
@@ -207,8 +222,9 @@
       if (sweepName(scene, enc) !== want) return;   // moved on while loading
       root.classList.remove("is-busy");
       draw();
-      var ne = M.encodings.length, ns = M.frames.length;
-      [[scene, (enc + 1) % ne], [scene, (enc + ne - 1) % ne],
+      var ne = ENC_ORDER.length, ns = M.frames.length;
+      var ei = ENC_ORDER.indexOf(enc);
+      [[scene, ENC_ORDER[(ei + 1) % ne]], [scene, ENC_ORDER[(ei + ne - 1) % ne]],
        [(scene + 1) % ns, enc], [(scene + ns - 1) % ns, enc]]
         .forEach(function (c) { load(sweepName(c[0], c[1])).catch(function () {}); });
     }).catch(function () { root.classList.add("is-failed"); });
@@ -247,9 +263,9 @@
 
   buttonGroup(
     root.querySelector("[data-gal=enc]"),
-    M.encodings.map(function (e) { return ENC_LABEL[e] || e; }),
-    function () { return enc; },
-    function (i) { select(scene, i, nbi); });
+    ENC_ORDER.map(function (e) { return ENC_LABEL[M.encodings[e]] || M.encodings[e]; }),
+    function () { return ENC_ORDER.indexOf(enc); },
+    function (i) { select(scene, ENC_ORDER[i], nbi); });
 
   buttonGroup(
     root.querySelector("[data-gal=scene]"),
