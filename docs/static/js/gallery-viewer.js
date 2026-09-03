@@ -1,8 +1,9 @@
 /* Bayesian REFoCUS - recovery gallery.
 
-   Six B-modes of one scene: the ground truth, the two things that go in, and
-   the three decodes of the encoded acquisition. Three controls move through
-   the E2 grid -- scene, transmit encoding, and the number of transmits Nb.
+   Five B-modes of one subject, in two rows: what goes in (the complete
+   multistatic acquisition, and the encoded measurements the sampler actually
+   sees) above the three decodes of those measurements. Three controls move
+   through the E2 grid -- subject, transmit sequence, and the transmit count Nb.
 
    Assets are WebP sprite atlases (see eval/visualizations/e2_gallery_web.py in
    the research repo). One atlas holds every Nb of every method for one
@@ -10,11 +11,12 @@
    a request; only scene and encoding fetch, and the neighbours of the current
    cell are prefetched so those rarely stall either.
 
-   The six are drawn into ONE canvas rather than six elements, sized to fit the
-   viewport in BOTH axes: the figure is a comparison, so it is worth nothing if
-   the reader has to scroll to see half of it. The internal grid reflows 6x1 ->
-   3x2 -> 2x3 as the screen narrows, and the tile scale is whichever of the
-   width and height budgets binds first.
+   All five are drawn into ONE canvas rather than five elements, sized to fit
+   the viewport in BOTH axes: the figure is a comparison, so it is worth nothing
+   if the reader has to scroll to see half of it. The 2-then-3 split is fixed
+   because it carries the meaning (inputs above, recoveries below), so the tile
+   scale is set by the wider row and whichever of the width and height budgets
+   binds first.
 
    Every tile was written on the same fixed [-50, 0] dB window, so what changes
    between two panels is the recovery and not the display gain. */
@@ -31,17 +33,17 @@
   var BASE = root.dataset.assets || "static/gallery/";
   var TW = M.tile[0], TH = M.tile[1];
 
-  /* Column order of the row, left to right. The first two are frame-only and
-     come from their own strips; the rest are addressed in the sweep atlas by
-     their index in M.methods. */
-  var COLUMNS = [
-    { key: "truth", strip: "truth", label: "ground truth" },
-    { key: "input", strip: "input", label: "full data set" },
-    { key: "adjoint", method: "adjoint", label: "encoded input" },
-    { key: "dps", method: "dps", label: "Bayesian REFoCUS", ours: true },
-    { key: "ramp", method: "ramp", label: "ramp-filtered" },
-    { key: "tikhonov", method: "tikhonov", label: "oracle Tikhonov" }
+  /* Two rows, and the split is the point: what is measured, then what is
+     recovered from it. "input" is frame-only and comes from its own strip; the
+     rest are addressed in the sweep atlas by their index in M.methods. */
+  var ROWS = [
+    [{ key: "input", strip: "input", label: "multistatic data set" },
+     { key: "adjoint", method: "adjoint", label: "measurements" }],
+    [{ key: "tikhonov", method: "tikhonov", label: "oracle Tikhonov" },
+     { key: "dps", method: "dps", label: "Bayesian REFoCUS", ours: true },
+     { key: "ramp", method: "ramp", label: "ramp-filtered adjoint" }]
   ];
+  var NCOL = Math.max.apply(null, ROWS.map(function (r) { return r.length; }));
 
   var ENC_LABEL = {
     focused: "focused", diverging: "diverging", wide: "wide",
@@ -61,7 +63,7 @@
                                                    // from it into the sparse
                                                    // regime that is the point.
   var ready = false;
-  var cols = 6, rows = 1, drawW = 0, drawH = 0;
+  var rows = 2, drawW = 0, drawH = 0;
 
   /* ---- asset loading ----------------------------------------------------
      Only the strips are required to boot. Sweep atlases are fetched per cell
@@ -112,13 +114,6 @@
   var cv = root.querySelector("[data-gal=sheet]");
   var ctx = cv.getContext("2d");
 
-  /* Largest tile a given number of columns allows, within both budgets. */
-  function scaleFor(nc, availW, budgetH) {
-    var nr = Math.ceil(COLUMNS.length / nc);
-    return Math.min((availW - (nc - 1) * GAP) / nc / TW,
-                    ((budgetH - (nr - 1) * GAP_Y) / nr - LABEL_H) / TH);
-  }
-
   function layout() {
     var availW = stage.clientWidth || root.clientWidth;
     var ctlH = controls ? controls.getBoundingClientRect().height : 0;
@@ -126,25 +121,19 @@
     // does not sit flush against the fold.
     var budgetH = Math.max(200, window.innerHeight - ctlH - 150);
 
-    // Pick the arrangement that draws the BIGGEST tile rather than one keyed to
-    // a width breakpoint. Six in a row is width-bound long before it is
-    // height-bound, so on an ordinary laptop it wastes most of the screen and
-    // 3x2 shows each B-mode at nearly twice the size.
-    cols = 6;
-    var best = -1;
-    [6, 3, 2, 1].forEach(function (nc) {
-      var sc = scaleFor(nc, availW, budgetH);
-      if (sc > best) { best = sc; cols = nc; }
-    });
-    rows = Math.ceil(COLUMNS.length / cols);
-
+    rows = ROWS.length;
+    // Both rows share one tile size -- a comparison in which the inputs were
+    // drawn larger than the recoveries would be reading a difference that is
+    // not in the data -- so the widest row sets the width budget.
+    var scale = Math.min((availW - (NCOL - 1) * GAP) / NCOL / TW,
+                         ((budgetH - (rows - 1) * GAP_Y) / rows - LABEL_H) / TH);
     // Never draw a tile larger than the pixels behind it: past 1:1 the atlas
     // is only being interpolated, which costs sharpness and buys no detail.
-    var scale = Math.min(best, 1);
+    scale = Math.min(scale, 1);
     drawW = Math.max(1, Math.floor(TW * scale));
     drawH = Math.max(1, Math.floor(TH * scale));
 
-    var cssW = cols * drawW + (cols - 1) * GAP;
+    var cssW = NCOL * drawW + (NCOL - 1) * GAP;
     var cssH = rows * (drawH + LABEL_H) + (rows - 1) * GAP_Y;
 
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -170,23 +159,31 @@
     ctx.textBaseline = "alphabetic";
     ctx.imageSmoothingQuality = "high";
 
-    COLUMNS.forEach(function (col, i) {
-      var s = sourceFor(col);
-      var x = (i % cols) * (drawW + GAP);
-      var y = Math.floor(i / cols) * (drawH + LABEL_H + GAP_Y);
+    var full = NCOL * drawW + (NCOL - 1) * GAP;
+    ROWS.forEach(function (row, r) {
+      // A row with fewer tiles is centred under the wider one rather than left
+      // ragged, so the two rows read as one block.
+      var rowW = row.length * drawW + (row.length - 1) * GAP;
+      var x0 = Math.round((full - rowW) / 2);
+      var y = r * (drawH + LABEL_H + GAP_Y);
 
-      ctx.fillStyle = col.ours ? ACCENT : FAINT;
-      ctx.fillText(col.label.toUpperCase(), x, y + LABEL_H - 5);
+      row.forEach(function (col, i) {
+        var s = sourceFor(col);
+        var x = x0 + i * (drawW + GAP);
 
-      if (!s) return;
-      ctx.drawImage(s[0], s[1], s[2], TW, TH, x, y + LABEL_H, drawW, drawH);
-      // The row's whole point is a comparison against one column, so that
-      // column is outlined rather than left to be found by reading labels.
-      if (col.ours) {
-        ctx.strokeStyle = ACCENT_DIM;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x + 0.5, y + LABEL_H + 0.5, drawW - 1, drawH - 1);
-      }
+        ctx.fillStyle = col.ours ? ACCENT : FAINT;
+        ctx.fillText(col.label.toUpperCase(), x, y + LABEL_H - 5);
+
+        if (!s) return;
+        ctx.drawImage(s[0], s[1], s[2], TW, TH, x, y + LABEL_H, drawW, drawH);
+        // The figure's whole point is a comparison against one panel, so that
+        // panel is outlined rather than left to be found by reading labels.
+        if (col.ours) {
+          ctx.strokeStyle = ACCENT_DIM;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x + 0.5, y + LABEL_H + 0.5, drawW - 1, drawH - 1);
+        }
+      });
     });
   }
 
@@ -268,12 +265,21 @@
   });
 
   /* Tick labels under the slider, so the eight sampled counts are legible as
-     the powers of two they are rather than a bare 0-7 position. */
+     the powers of two they are rather than a bare 0-7 position.
+
+     Each label is pinned to where the THUMB CENTRE actually lands, not to an
+     even division of the track. A range input's thumb travels only
+     (track - thumb) px, so evenly spaced labels drift away from the thumb
+     towards both ends -- most visibly at 1 and 80. The CSS turns --i into
+     calc(thumb/2 + (100% - thumb) * i/(n-1)). */
   var ticks = root.querySelector("[data-gal=ticks]");
-  M.nb.forEach(function (nb) {
-    var s = document.createElement("span");
-    s.textContent = nb;
-    ticks.appendChild(s);
+  var last = M.nb.length - 1;
+  M.nb.forEach(function (nb, i) {
+    var el = document.createElement("span");
+    el.textContent = nb;
+    el.style.setProperty("--i", i);
+    el.style.setProperty("--n", last);
+    ticks.appendChild(el);
   });
 
   window.addEventListener("resize", layout);
@@ -281,7 +287,14 @@
   /* ---- start ------------------------------------------------------------ */
 
   function boot() {
-    Promise.all([load(M.truth), load(M.input), load(sweepName(scene, enc))])
+    // Every frame-only strip named by a row, plus this cell's atlas.
+    var strips = [];
+    ROWS.forEach(function (row) {
+      row.forEach(function (c) {
+        if (c.strip && strips.indexOf(M[c.strip]) < 0) strips.push(M[c.strip]);
+      });
+    });
+    Promise.all(strips.concat([sweepName(scene, enc)]).map(load))
       .then(function () {
         ready = true;
         root.classList.add("is-ready");

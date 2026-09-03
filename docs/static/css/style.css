@@ -397,7 +397,7 @@ footer p { margin: 0 0 0.5rem; }
    The six B-modes are one canvas the viewer sizes to the viewport, so the
    only thing this file owns below the controls is centring it. */
 
-.gal { margin: 0; }
+.gal { margin: 0; --thumb: 14px; }
 
 /* ---- controls ---- */
 
@@ -425,6 +425,10 @@ footer p { margin: 0 0 0.5rem; }
 .gal-slider {
   display: block;
   width: 100%;
+  /* Chrome's UA sheet puts 2px of margin on a range input, which offsets the
+     thumb track from the tick track by exactly that much. Zero it so the two
+     share an origin and the tick maths below lands on the thumb. */
+  margin: 0;
   -webkit-appearance: none;
   appearance: none;
   height: 3px;
@@ -435,7 +439,7 @@ footer p { margin: 0 0 0.5rem; }
 .gal-slider:disabled { opacity: 0.4; cursor: default; }
 .gal-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 15px; height: 15px;
+  width: var(--thumb); height: var(--thumb);
   border-radius: 50%;
   background: var(--text);
   border: 2px solid var(--bg);
@@ -443,7 +447,8 @@ footer p { margin: 0 0 0.5rem; }
   cursor: grab;
 }
 .gal-slider::-moz-range-thumb {
-  width: 13px; height: 13px;
+  width: var(--thumb); height: var(--thumb);
+  box-sizing: border-box;
   border-radius: 50%;
   background: var(--text);
   border: 2px solid var(--bg);
@@ -451,19 +456,25 @@ footer p { margin: 0 0 0.5rem; }
 }
 .gal-slider:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 4px; }
 
-/* The eight sampled counts are powers of two, so the ticks are laid out on
-   the slider's own even spacing and read as labels for the detents. */
+/* Each tick sits exactly under the thumb position it names. The thumb centre
+   travels from thumb/2 to (track - thumb/2), NOT from 0 to 100%, so spacing
+   the labels evenly across the track leaves them drifting off the thumb at
+   both ends. --i and --n are set per label by the viewer. */
 .gal-ticks {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  height: 1em;
   margin-top: 0.35rem;
   font-family: var(--font-mono);
   font-size: 0.64rem;
   color: var(--faint);
 }
-.gal-ticks > span { flex: 1 1 0; text-align: center; }
-.gal-ticks > span:first-child { text-align: left; }
-.gal-ticks > span:last-child { text-align: right; }
+.gal-ticks > span {
+  position: absolute;
+  top: 0;
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--i) / var(--n));
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
 
 .gal-readout {
   margin: 0.45rem 0 0;
