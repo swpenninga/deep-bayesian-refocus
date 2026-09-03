@@ -173,25 +173,7 @@
   <div class="wrap">
     <h2>Uncertainty tracks reconstruction error</h2>
 
-    <p class="e6-intro">
-      An eight-transmit focused acquisition leaves much of the multistatic data
-      unobserved. Bayesian REFoCUS returns a posterior over plausible
-      completions; move the slider to inspect all 16 samples.
-    </p>
-
-    <figure class="e6" id="e6" data-assets="static/e6/"
-            aria-describedby="e6-caption">
-
-      <div class="e6-controls">
-        <div class="e6-control">
-          <label for="e6-slider">posterior sample</label>
-          <input class="e6-slider" data-e6="slider" id="e6-slider" type="range"
-                 min="1" max="16" step="1" value="1"
-                 aria-label="Posterior sample" disabled>
-          <output class="e6-readout" data-e6="readout" for="e6-slider"
-                  aria-live="polite">1 / 16</output>
-        </div>
-      </div>
+    <figure class="e6" id="e6" data-assets="static/e6/">
 
       <div class="e6-grid">
 
@@ -205,7 +187,14 @@
         </div>
 
         <div class="e6-panel">
-          <span class="e6-label">posterior multistatic sample</span>
+          <div class="e6-control">
+            <label for="e6-slider">posterior sample</label>
+            <input class="e6-slider" data-e6="slider" id="e6-slider" type="range"
+                   min="1" max="16" step="1" value="1"
+                   aria-label="Posterior sample" disabled>
+            <output class="e6-readout" data-e6="readout" for="e6-slider"
+                    aria-live="polite">1 / 16</output>
+          </div>
           <div class="e6-frame">
             <canvas data-e6="sample" width="480" height="432" role="img"
                     aria-label="Beamformed posterior sample 1 of 16"></canvas>
@@ -214,7 +203,7 @@
         </div>
 
         <div class="e6-panel">
-          <span class="e6-label">posterior-mean residual</span>
+          <span class="e6-label">Posterior-mean loss</span>
           <div class="e6-frame">
             <img src="static/e6/posterior_mean_residual.webp"
                  width="480" height="432" loading="lazy" decoding="async"
@@ -223,7 +212,7 @@
         </div>
 
         <div class="e6-panel">
-          <span class="e6-label">posterior RMS spread</span>
+          <span class="e6-label">posterior variance</span>
           <div class="e6-frame">
             <img src="static/e6/posterior_rms_spread.webp"
                  width="480" height="432" loading="lazy" decoding="async"
@@ -232,16 +221,6 @@
         </div>
 
       </div>
-
-      <figcaption id="e6-caption">
-        <b>Epistemic uncertainty follows error.</b>
-        Posterior RMS spread and posterior-mean residual are formed in complex
-        multistatic IQ before beamforming and shown in dB relative to the truth
-        peak. Their pixelwise Spearman correlation is
-        &rho;<sub>s</sub> = 0.981. Posterior samples share one fixed
-        [&#8722;50, 0] dB display window (<i>K</i> = 16,
-        &zeta; = 0.35).
-      </figcaption>
 
     </figure>
   </div>

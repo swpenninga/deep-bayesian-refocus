@@ -7,34 +7,21 @@
 }
 
 #uncertainty h2,
-#uncertainty .e6-intro,
 .e6 {
   width: var(--e6-w);
   margin-inline: auto;
-}
-
-.e6-intro {
-  color: var(--muted);
-  margin-bottom: 1.25rem;
 }
 
 .e6 {
   margin-bottom: 1.5rem;
 }
 
-.e6-controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 0.8rem;
-}
-
 .e6-control {
-  grid-column: 2;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 
 .e6-control label,
@@ -161,22 +148,13 @@
   font-size: 0.72rem;
 }
 
-.e6 figcaption {
-  max-width: none;
-  margin-top: 0.9rem;
-}
-
 @media (max-width: 640px) {
   #uncertainty {
     --e6-w: 100%;
   }
 
-  .e6-controls,
   .e6-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .e6-control {
-    grid-column: 1;
-  }
 }
