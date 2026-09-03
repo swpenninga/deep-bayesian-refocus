@@ -393,24 +393,20 @@ footer p { margin: 0 0 0.5rem; }
 }
 
 /* ---- recovery gallery --------------------------------------------------- */
-/* Assets and behaviour: static/gallery/ + static/js/gallery-viewer.js. */
+/* Assets and behaviour: static/gallery/ + static/js/gallery-viewer.js.
+   The six B-modes are one canvas the viewer sizes to the viewport, so the
+   only thing this file owns below the controls is centring it. */
 
-.lede {
-  max-width: var(--measure);
-  color: var(--muted);
-  margin: -0.5rem 0 1.75rem;
-}
-
-.gal { margin: 0; position: relative; }
+.gal { margin: 0; }
 
 /* ---- controls ---- */
 
 .gal-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1.1rem 2rem;
+  gap: 0.9rem 2rem;
   align-items: end;
-  margin-bottom: 1.4rem;
+  margin-bottom: 1rem;
 }
 .gal-ctl-nb { grid-row: span 2; }
 
@@ -421,7 +417,7 @@ footer p { margin: 0 0 0.5rem; }
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--faint);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
 }
 
 .gal-nbwrap { padding-bottom: 0.1rem; }
@@ -460,7 +456,7 @@ footer p { margin: 0 0 0.5rem; }
 .gal-ticks {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.4rem;
+  margin-top: 0.35rem;
   font-family: var(--font-mono);
   font-size: 0.64rem;
   color: var(--faint);
@@ -470,7 +466,7 @@ footer p { margin: 0 0 0.5rem; }
 .gal-ticks > span:last-child { text-align: right; }
 
 .gal-readout {
-  margin: 0.55rem 0 0;
+  margin: 0.45rem 0 0;
   font-size: 0.82rem;
   color: var(--muted);
 }
@@ -487,7 +483,7 @@ footer p { margin: 0 0 0.5rem; }
   background: var(--surface-2);
   color: var(--muted);
   border-radius: 999px;
-  padding: 0.3rem 0.7rem;
+  padding: 0.28rem 0.65rem;
   font-family: var(--font-sans);
   font-size: 0.76rem;
   line-height: 1.1;
@@ -503,73 +499,34 @@ footer p { margin: 0 0 0.5rem; }
 .gal-chip:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 2px; }
 
 .gal-chips-num .gal-chip {
-  min-width: 2rem;
-  padding: 0.3rem 0.4rem;
+  min-width: 1.9rem;
+  padding: 0.28rem 0.38rem;
   font-family: var(--font-mono);
   text-align: center;
 }
 
-/* ---- the row ---- */
+/* ---- the images ---- */
 
-.gal-stage {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.5rem;
-  /* Headers wrap to two lines at some widths; align the images to a common
-     baseline so the row still reads as one comparison. */
-  align-items: end;
-}
-
-.gal-col { min-width: 0; }
-
-.gal-colhead {
-  display: block;
-  margin-bottom: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  line-height: 1.35;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--faint);
-}
-
-.gal-panel {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #000;
-  overflow: hidden;
-}
-.gal-panel canvas { display: block; width: 100%; height: auto; }
-
-/* The row's whole point is a comparison against one column, so that column is
-   outlined rather than left to be found by reading the labels. */
-.gal-col.is-ours .gal-panel { border-color: var(--accent-dim); }
-.gal-col.is-ours .gal-colhead { color: var(--accent); }
+.gal-stage { text-align: center; }
+.gal-stage canvas { display: inline-block; vertical-align: top; }
 
 /* A cell whose atlas is still in flight dims rather than blanking, so a slow
    connection reads as latency and not as a broken figure. */
 .gal.is-busy .gal-stage { opacity: 0.55; transition: opacity 0.15s ease; }
 
 .gal-loading {
-  position: absolute;
-  inset: auto 0 0 0;
-  display: none;
-  padding-top: 0.9rem;
   color: var(--faint);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  display: none;
 }
-.gal:not(.is-ready) .gal-loading { display: block; position: static; }
-.gal.is-failed .gal-loading { display: block; position: static; }
+.gal:not(.is-ready) .gal-loading,
+.gal.is-failed .gal-loading { display: block; }
 .gal.is-failed .gal-loading-label { display: none; }
 .gal.is-failed .gal-loading::after { content: "could not load"; }
 
 @media (max-width: 900px) {
-  .gal-stage { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .gal-controls { grid-template-columns: minmax(0, 1fr); }
   .gal-ctl-nb { grid-row: auto; }
-}
-@media (max-width: 480px) {
-  .gal-stage { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

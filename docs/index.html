@@ -125,13 +125,6 @@
 <!-- ===================== recovery gallery ===================== -->
 <section id="recoveries">
   <div class="wrap">
-    <h2>Recoveries across the transmit budget</h2>
-
-    <p class="lede">
-      The same scene, decoded from a shrinking acquisition. Every panel is
-      drawn on one fixed 50&nbsp;dB window, so what changes between them is the
-      recovery and not the display gain.
-    </p>
 
     <figure class="gal" id="gallery" data-assets="static/gallery/">
 
@@ -163,19 +156,11 @@
 
       </div>
 
-      <div class="gal-stage" data-gal="stage"></div>
+      <div class="gal-stage" data-gal="stage">
+        <canvas data-gal="sheet"></canvas>
+      </div>
 
       <div class="gal-loading"><span class="gal-loading-label">loading</span></div>
-
-      <figcaption>
-        <b>Ground truth</b> and the <b>full data set</b> at the same receiver
-        noise floor bracket what any decoder can do. The
-        <b>encoded input</b> is the acquisition itself, beamformed without a
-        decode. <b>Bayesian REFoCUS</b> is the posterior mean over eight
-        samples; <b>ramp-filtered</b> and <b>oracle Tikhonov</b> are the linear
-        baselines, the latter with its regularization fitted per frame against
-        the truth it is being scored on.
-      </figcaption>
 
     </figure>
 

@@ -1,15 +1,20 @@
 /* Bayesian REFoCUS - recovery gallery.
 
-   One row of six B-modes of the same scene: the ground truth, the two things
-   that go in, and the three decodes of the encoded acquisition. Three controls
-   move through the E2 grid -- scene, transmit encoding, and the number of
-   transmits Nb.
+   Six B-modes of one scene: the ground truth, the two things that go in, and
+   the three decodes of the encoded acquisition. Three controls move through
+   the E2 grid -- scene, transmit encoding, and the number of transmits Nb.
 
    Assets are WebP sprite atlases (see eval/visualizations/e2_gallery_web.py in
    the research repo). One atlas holds every Nb of every method for one
    (scene, encoding) pair, so dragging the Nb slider is a canvas blit and never
    a request; only scene and encoding fetch, and the neighbours of the current
    cell are prefetched so those rarely stall either.
+
+   The six are drawn into ONE canvas rather than six elements, sized to fit the
+   viewport in BOTH axes: the figure is a comparison, so it is worth nothing if
+   the reader has to scroll to see half of it. The internal grid reflows 6x1 ->
+   3x2 -> 2x3 as the screen narrows, and the tile scale is whichever of the
+   width and height budgets binds first.
 
    Every tile was written on the same fixed [-50, 0] dB window, so what changes
    between two panels is the recovery and not the display gain. */
@@ -43,16 +48,24 @@
     pw: "plane wave", hadamard: "Hadamard", random: "random"
   };
 
+  var GAP = 3;            // px between columns; enough to separate, not to divide
+  var GAP_Y = 12;         // more between rows: a label needs air under the
+                          // image above it or it reads as that image's caption
+  var LABEL_H = 15;       // strip reserved above each tile for its name
+  var FAINT = "#6b7280", ACCENT = "#7dd3fc", ACCENT_DIM = "#38598a";
+  var MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
   var scene = 0, enc = 0, nbi = M.nb.length - 1;   // open at full Nb: the
                                                    // agreement everyone expects,
                                                    // so the slider moves AWAY
                                                    // from it into the sparse
                                                    // regime that is the point.
   var ready = false;
+  var cols = 6, rows = 1, drawW = 0, drawH = 0;
 
   /* ---- asset loading ----------------------------------------------------
      Only the strips are required to boot. Sweep atlases are fetched per cell
-     and memoized; 60 of them is ~17 MB, which is not a page load. */
+     and memoized; 60 of them is ~21 MB, which is not a page load. */
 
   var images = {};
   var pending = {};
@@ -80,73 +93,100 @@
     return [im, (i % M.cols) * TW, Math.floor(i / M.cols) * TH];
   }
 
-  function stripTile(im, s) { return [im, s * TW, 0]; }
-
   function sourceFor(col) {
     if (col.strip) {
       var im = images[M[col.strip]];
-      return im ? stripTile(im, scene) : null;
+      return im ? [im, scene * TW, 0] : null;
     }
     var sw = images[sweepName(scene, enc)];
     return sw ? sweepTile(sw, col.method) : null;
   }
 
-  /* ---- DOM -------------------------------------------------------------- */
+  /* ---- layout -----------------------------------------------------------
+     The tile scale is the smaller of what the width allows and what is left of
+     the viewport height once the controls are on screen, so the whole figure
+     is always visible at once. */
 
   var stage = root.querySelector("[data-gal=stage]");
-  var canvases = [];
+  var controls = root.querySelector(".gal-controls");
+  var cv = root.querySelector("[data-gal=sheet]");
+  var ctx = cv.getContext("2d");
 
-  /* The label goes ABOVE the image, not over it: these are column headers,
-     and near-field speckle sits exactly where an overlaid tag would land. */
-  COLUMNS.forEach(function (col) {
-    var wrap = document.createElement("div");
-    wrap.className = "gal-col" + (col.ours ? " is-ours" : "");
-    var head = document.createElement("span");
-    head.className = "gal-colhead";
-    head.textContent = col.label;
-    var fig = document.createElement("div");
-    fig.className = "gal-panel";
-    var cv = document.createElement("canvas");
-    fig.appendChild(cv);
-    wrap.appendChild(head);
-    wrap.appendChild(fig);
-    stage.appendChild(wrap);
-    canvases.push(cv);
-  });
-
-  /* ---- canvas sizing ---------------------------------------------------- */
-
-  function fit(cv, cssW, cssH) {
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    cv.style.height = cssH + "px";
-    var w = Math.round(cssW * dpr), h = Math.round(cssH * dpr);
-    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-    var ctx = cv.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    return ctx;
+  /* Largest tile a given number of columns allows, within both budgets. */
+  function scaleFor(nc, availW, budgetH) {
+    var nr = Math.ceil(COLUMNS.length / nc);
+    return Math.min((availW - (nc - 1) * GAP) / nc / TW,
+                    ((budgetH - (nr - 1) * GAP_Y) / nr - LABEL_H) / TH);
   }
 
   function layout() {
-    canvases.forEach(function (cv) {
-      var w = cv.parentNode.clientWidth;
-      fit(cv, w, Math.round(w * TH / TW));
+    var availW = stage.clientWidth || root.clientWidth;
+    var ctlH = controls ? controls.getBoundingClientRect().height : 0;
+    // 150px covers the section's own padding plus a little air, so the figure
+    // does not sit flush against the fold.
+    var budgetH = Math.max(200, window.innerHeight - ctlH - 150);
+
+    // Pick the arrangement that draws the BIGGEST tile rather than one keyed to
+    // a width breakpoint. Six in a row is width-bound long before it is
+    // height-bound, so on an ordinary laptop it wastes most of the screen and
+    // 3x2 shows each B-mode at nearly twice the size.
+    cols = 6;
+    var best = -1;
+    [6, 3, 2, 1].forEach(function (nc) {
+      var sc = scaleFor(nc, availW, budgetH);
+      if (sc > best) { best = sc; cols = nc; }
     });
+    rows = Math.ceil(COLUMNS.length / cols);
+
+    // Never draw a tile larger than the pixels behind it: past 1:1 the atlas
+    // is only being interpolated, which costs sharpness and buys no detail.
+    var scale = Math.min(best, 1);
+    drawW = Math.max(1, Math.floor(TW * scale));
+    drawH = Math.max(1, Math.floor(TH * scale));
+
+    var cssW = cols * drawW + (cols - 1) * GAP;
+    var cssH = rows * (drawH + LABEL_H) + (rows - 1) * GAP_Y;
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.style.width = cssW + "px";
+    cv.style.height = cssH + "px";
+    var w = Math.round(cssW * dpr), h = Math.round(cssH * dpr);
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     draw();
   }
 
   /* ---- drawing ---------------------------------------------------------- */
 
   function draw() {
+    var cssW = parseFloat(cv.style.width), cssH = parseFloat(cv.style.height);
+    ctx.clearRect(0, 0, cssW, cssH);
+    if (!ready) return;
+
+    var fs = Math.max(8, Math.min(11, Math.round(drawW / 22)));
+    ctx.font = fs + "px " + MONO;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.imageSmoothingQuality = "high";
+
     COLUMNS.forEach(function (col, i) {
-      var cv = canvases[i];
-      var ctx = cv.getContext("2d");
-      var w = cv.clientWidth, h = cv.clientHeight;
-      ctx.clearRect(0, 0, w, h);
-      if (!ready) return;
       var s = sourceFor(col);
+      var x = (i % cols) * (drawW + GAP);
+      var y = Math.floor(i / cols) * (drawH + LABEL_H + GAP_Y);
+
+      ctx.fillStyle = col.ours ? ACCENT : FAINT;
+      ctx.fillText(col.label.toUpperCase(), x, y + LABEL_H - 5);
+
       if (!s) return;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(s[0], s[1], s[2], TW, TH, 0, 0, w, h);
+      ctx.drawImage(s[0], s[1], s[2], TW, TH, x, y + LABEL_H, drawW, drawH);
+      // The row's whole point is a comparison against one column, so that
+      // column is outlined rather than left to be found by reading labels.
+      if (col.ours) {
+        ctx.strokeStyle = ACCENT_DIM;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, y + LABEL_H + 0.5, drawW - 1, drawH - 1);
+      }
     });
   }
 
@@ -164,12 +204,11 @@
 
   /* Fetch the cell's atlas, then the four cells one step away, so the common
      moves (nudge the encoding, step the scene) are already resident. */
-  function ensure(then) {
+  function ensure() {
     var want = sweepName(scene, enc);
     load(want).then(function () {
       if (sweepName(scene, enc) !== want) return;   // moved on while loading
       root.classList.remove("is-busy");
-      if (then) then();
       draw();
       var ne = M.encodings.length, ns = M.frames.length;
       [[scene, (enc + 1) % ne], [scene, (enc + ne - 1) % ne],
