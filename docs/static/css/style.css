@@ -264,7 +264,19 @@ footer p { margin: 0 0 0.5rem; }
 /* ---- reverse-diffusion trajectory viewer -------------------------------- */
 /* Assets and behaviour: static/dps/ + static/js/dps-viewer.js. */
 
-.dps { margin: 0; }
+/* The B-mode tile is 480x439 and takes the 6 of the 4:6 grid below, so the
+   figure's height follows from its width: at the full 68rem wrap the panels
+   alone stand 558px, half again the teaser film above them. Cap the width the
+   way .teaser does -- the column, a fixed width, and what a share of the
+   viewport height allows -- and the two figures come out the same size on
+   screen. The third term inverts the chain: 1.82 is 10/6 of the grid times
+   480/439 of the tile, 3.4rem is the controls row (2.3 tall + 1.1 margin) and
+   1.25rem the grid gap. */
+#trajectory { --dps-w: min(100%, 52rem, calc((62vh - 3.4rem) * 1.82 + 1.25rem)); }
+.dps { width: var(--dps-w); margin: 0 auto; }
+/* The heading belongs to the figure, so it follows it in rather than sitting
+   out at the wrap edge on its own. */
+#trajectory h2 { width: var(--dps-w); margin-inline: auto; }
 
 .dps-stage {
   display: grid;
@@ -388,6 +400,7 @@ footer p { margin: 0 0 0.5rem; }
 .dps-slider:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 4px; }
 
 @media (max-width: 820px) {
+  #trajectory { --dps-w: 100%; }
   .dps-stage { grid-template-columns: 1fr; }
   .dps-controls { flex-wrap: wrap; }
 }

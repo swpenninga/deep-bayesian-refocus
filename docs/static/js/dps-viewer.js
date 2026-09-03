@@ -8,7 +8,12 @@
 
    Left  - every 10th transmit of the 80-transmit data set, stacked back to
            front the way the channel-data panels in the paper are drawn.
-   Right - the retrospectively focused B-mode of that same estimate. */
+   Right - the retrospectively focused B-mode of that same estimate.
+
+   The exported trajectory stops at t = 0.5, half the sampler's schedule
+   (`--max-frames 51`): by then the estimate is at a steady state, and the
+   frames after it are slider travel that shows nothing. `n_frames_full` in
+   the manifest records how long the run actually was. */
 
 (function () {
   "use strict";
