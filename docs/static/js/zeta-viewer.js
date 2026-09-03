@@ -1,7 +1,7 @@
 /* Synchronized, axes-free wide-harmonic guidance sweep.
 
    The two visible elements are real GIF images with the same source: one
-   axes-free strip containing measurement | zeta 0.2 | ... | zeta 1.6.
+   axes-free strip containing measurement | zeta 0.2 | ... | zeta 1.4.
    Selecting a zeta translates the right strip and never replaces its src, so
    both animations continue on the shared image-resource clock. */
 
