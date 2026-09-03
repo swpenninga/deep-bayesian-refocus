@@ -391,3 +391,185 @@ footer p { margin: 0 0 0.5rem; }
   .dps-stage { grid-template-columns: 1fr; }
   .dps-controls { flex-wrap: wrap; }
 }
+
+/* ---- recovery gallery --------------------------------------------------- */
+/* Assets and behaviour: static/gallery/ + static/js/gallery-viewer.js. */
+
+.lede {
+  max-width: var(--measure);
+  color: var(--muted);
+  margin: -0.5rem 0 1.75rem;
+}
+
+.gal { margin: 0; position: relative; }
+
+/* ---- controls ---- */
+
+.gal-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.1rem 2rem;
+  align-items: end;
+  margin-bottom: 1.4rem;
+}
+.gal-ctl-nb { grid-row: span 2; }
+
+.gal-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.5rem;
+}
+
+.gal-nbwrap { padding-bottom: 0.1rem; }
+
+.gal-slider {
+  display: block;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--line);
+  cursor: pointer;
+}
+.gal-slider:disabled { opacity: 0.4; cursor: default; }
+.gal-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: grab;
+}
+.gal-slider::-moz-range-thumb {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid var(--bg);
+  cursor: grab;
+}
+.gal-slider:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 4px; }
+
+/* The eight sampled counts are powers of two, so the ticks are laid out on
+   the slider's own even spacing and read as labels for the detents. */
+.gal-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--faint);
+}
+.gal-ticks > span { flex: 1 1 0; text-align: center; }
+.gal-ticks > span:first-child { text-align: left; }
+.gal-ticks > span:last-child { text-align: right; }
+
+.gal-readout {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.gal-readout b {
+  font-family: var(--font-mono);
+  color: var(--text);
+  font-weight: 400;
+}
+
+.gal-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.gal-chip {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.gal-chip:hover { color: var(--text); border-color: var(--accent-dim); }
+.gal-chip.is-on {
+  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+}
+.gal-chip:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 2px; }
+
+.gal-chips-num .gal-chip {
+  min-width: 2rem;
+  padding: 0.3rem 0.4rem;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+/* ---- the row ---- */
+
+.gal-stage {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5rem;
+  /* Headers wrap to two lines at some widths; align the images to a common
+     baseline so the row still reads as one comparison. */
+  align-items: end;
+}
+
+.gal-col { min-width: 0; }
+
+.gal-colhead {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.gal-panel {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #000;
+  overflow: hidden;
+}
+.gal-panel canvas { display: block; width: 100%; height: auto; }
+
+/* The row's whole point is a comparison against one column, so that column is
+   outlined rather than left to be found by reading the labels. */
+.gal-col.is-ours .gal-panel { border-color: var(--accent-dim); }
+.gal-col.is-ours .gal-colhead { color: var(--accent); }
+
+/* A cell whose atlas is still in flight dims rather than blanking, so a slow
+   connection reads as latency and not as a broken figure. */
+.gal.is-busy .gal-stage { opacity: 0.55; transition: opacity 0.15s ease; }
+
+.gal-loading {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: none;
+  padding-top: 0.9rem;
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.gal:not(.is-ready) .gal-loading { display: block; position: static; }
+.gal.is-failed .gal-loading { display: block; position: static; }
+.gal.is-failed .gal-loading-label { display: none; }
+.gal.is-failed .gal-loading::after { content: "could not load"; }
+
+@media (max-width: 900px) {
+  .gal-stage { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gal-controls { grid-template-columns: minmax(0, 1fr); }
+  .gal-ctl-nb { grid-row: auto; }
+}
+@media (max-width: 480px) {
+  .gal-stage { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
