@@ -23,7 +23,13 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
+  /* Tighter than the gallery/zeta controls on purpose: at four panels per
+     row this control is squeezed into a ~244px column, and the label and
+     readout are fixed-width -- every pixel taken off the gutters goes
+     straight to the slider track without moving either text run, since the
+     label sits flush against the column's left edge and the readout is
+     right-aligned against its own (already tight) column. */
+  gap: 0.4rem;
   margin-bottom: 0.4rem;
 }
 
@@ -34,6 +40,7 @@
   font-size: 0.68rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .e6-control label,
@@ -42,7 +49,9 @@
 }
 
 .e6-readout {
-  min-width: 4.6rem;
+  /* Just past "15 / 15" (measured ~50px at this font), not the old 4.6rem --
+     that alone was giving away nearly a third of the slider's track. */
+  min-width: 3.3rem;
   color: var(--text);
   text-align: right;
 }
