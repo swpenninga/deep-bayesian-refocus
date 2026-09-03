@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="static/css/style.css">
+<link rel="stylesheet" href="static/css/e6-viewer.css">
 </head>
 <body>
 
@@ -167,6 +168,85 @@
   </div>
 </section>
 
+<!-- ===================== posterior uncertainty ===================== -->
+<section id="uncertainty">
+  <div class="wrap">
+    <h2>Uncertainty tracks reconstruction error</h2>
+
+    <p class="e6-intro">
+      An eight-transmit focused acquisition leaves much of the multistatic data
+      unobserved. Bayesian REFoCUS returns a posterior over plausible
+      completions; move the slider to inspect all 16 samples.
+    </p>
+
+    <figure class="e6" id="e6" data-assets="static/e6/"
+            aria-describedby="e6-caption">
+
+      <div class="e6-controls">
+        <div class="e6-control">
+          <label for="e6-slider">posterior sample</label>
+          <input class="e6-slider" data-e6="slider" id="e6-slider" type="range"
+                 min="1" max="16" step="1" value="1"
+                 aria-label="Posterior sample" disabled>
+          <output class="e6-readout" data-e6="readout" for="e6-slider"
+                  aria-live="polite">1 / 16</output>
+        </div>
+      </div>
+
+      <div class="e6-grid">
+
+        <div class="e6-panel">
+          <span class="e6-label">focused measurement &middot; 8 transmits</span>
+          <div class="e6-frame">
+            <img src="static/e6/measurement.webp" width="480" height="432"
+                 loading="lazy" decoding="async"
+                 alt="B-mode formed directly from the eight-transmit focused measurement">
+          </div>
+        </div>
+
+        <div class="e6-panel">
+          <span class="e6-label">posterior multistatic sample</span>
+          <div class="e6-frame">
+            <canvas data-e6="sample" width="480" height="432" role="img"
+                    aria-label="Beamformed posterior sample 1 of 16"></canvas>
+            <div class="e6-loading">loading posterior samples</div>
+          </div>
+        </div>
+
+        <div class="e6-panel">
+          <span class="e6-label">posterior-mean residual</span>
+          <div class="e6-frame">
+            <img src="static/e6/posterior_mean_residual.webp"
+                 width="480" height="432" loading="lazy" decoding="async"
+                 alt="Beamformed residual between the posterior mean and ground truth">
+          </div>
+        </div>
+
+        <div class="e6-panel">
+          <span class="e6-label">posterior RMS spread</span>
+          <div class="e6-frame">
+            <img src="static/e6/posterior_rms_spread.webp"
+                 width="480" height="432" loading="lazy" decoding="async"
+                 alt="Beamformed posterior root-mean-square spread">
+          </div>
+        </div>
+
+      </div>
+
+      <figcaption id="e6-caption">
+        <b>Epistemic uncertainty follows error.</b>
+        Posterior RMS spread and posterior-mean residual are formed in complex
+        multistatic IQ before beamforming and shown in dB relative to the truth
+        peak. Their pixelwise Spearman correlation is
+        &rho;<sub>s</sub> = 0.981. Posterior samples share one fixed
+        [&#8722;50, 0] dB display window (<i>K</i> = 16,
+        &zeta; = 0.35).
+      </figcaption>
+
+    </figure>
+  </div>
+</section>
+
 <!-- ===================== bibtex ===================== -->
 <section id="bibtex">
   <div class="wrap">
@@ -198,6 +278,8 @@
 <script src="static/js/dps-viewer.js"></script>
 <script src="static/gallery/manifest.js"></script>
 <script src="static/js/gallery-viewer.js"></script>
+<script src="static/e6/manifest.js"></script>
+<script src="static/js/e6-viewer.js"></script>
 <script src="static/js/main.js"></script>
 </body>
 </html>

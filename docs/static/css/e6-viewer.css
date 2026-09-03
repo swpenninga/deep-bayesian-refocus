@@ -1,0 +1,182 @@
+/* E6 posterior uncertainty panel.
+   Kept separate from style.css so work on the trajectory viewer can land
+   independently. Assets and behavior live in static/e6/ and e6-viewer.js. */
+
+#uncertainty {
+  --e6-w: min(100%, 52rem);
+}
+
+#uncertainty h2,
+#uncertainty .e6-intro,
+.e6 {
+  width: var(--e6-w);
+  margin-inline: auto;
+}
+
+.e6-intro {
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.e6 {
+  margin-bottom: 1.5rem;
+}
+
+.e6-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 0.8rem;
+}
+
+.e6-control {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.e6-control label,
+.e6-readout,
+.e6-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.e6-control label,
+.e6-label {
+  color: var(--faint);
+}
+
+.e6-readout {
+  min-width: 4.6rem;
+  color: var(--text);
+  text-align: right;
+}
+
+.e6-slider {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--line);
+  cursor: pointer;
+}
+
+.e6-slider:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.e6-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: grab;
+}
+
+.e6-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid var(--bg);
+  cursor: grab;
+}
+
+.e6-slider:focus-visible {
+  outline: 2px solid var(--accent-dim);
+  outline-offset: 4px;
+}
+
+.e6-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.e6-panel {
+  min-width: 0;
+}
+
+.e6-label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.e6-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 10 / 9;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #000;
+  line-height: 0;
+}
+
+.e6-frame img,
+.e6-frame canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.e6-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.e6.is-ready .e6-loading {
+  display: none;
+}
+
+.e6.is-failed .e6-loading {
+  font-size: 0;
+}
+
+.e6.is-failed .e6-loading::after {
+  content: "could not load posterior samples";
+  font-size: 0.72rem;
+}
+
+.e6 figcaption {
+  max-width: none;
+  margin-top: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  #uncertainty {
+    --e6-w: 100%;
+  }
+
+  .e6-controls,
+  .e6-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .e6-control {
+    grid-column: 1;
+  }
+}
