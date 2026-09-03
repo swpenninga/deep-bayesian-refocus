@@ -3,7 +3,10 @@
    independently. Assets and behavior live in static/e6/ and e6-viewer.js. */
 
 #uncertainty {
-  --e6-w: min(100%, 52rem);
+  /* Four panels across need more room than the old two-panel figure, but the
+     strip should still read as compact rather than spanning the full measure
+     -- 64rem leaves a little air inside .wrap's own 68rem cap. */
+  --e6-w: min(100%, 64rem);
 }
 
 #uncertainty h2,
@@ -90,8 +93,8 @@
 
 .e6-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .e6-panel {
@@ -148,6 +151,16 @@
   font-size: 0.72rem;
 }
 
+@media (max-width: 900px) {
+  #uncertainty {
+    --e6-w: min(100%, 44rem);
+  }
+
+  .e6-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 640px) {
   #uncertainty {
     --e6-w: 100%;
@@ -156,5 +169,4 @@
   .e6-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-
 }
