@@ -190,14 +190,14 @@
           <div class="e6-control">
             <label for="e6-slider">posterior sample</label>
             <input class="e6-slider" data-e6="slider" id="e6-slider" type="range"
-                   min="1" max="16" step="1" value="1"
+                   min="1" max="15" step="1" value="1"
                    aria-label="Posterior sample" disabled>
             <output class="e6-readout" data-e6="readout" for="e6-slider"
-                    aria-live="polite">1 / 16</output>
+                    aria-live="polite">1 / 15</output>
           </div>
           <div class="e6-frame">
             <canvas data-e6="sample" width="480" height="432" role="img"
-                    aria-label="Beamformed posterior sample 1 of 16"></canvas>
+                    aria-label="Beamformed posterior sample 1 of 15"></canvas>
             <div class="e6-loading">loading posterior samples</div>
           </div>
         </div>
@@ -205,7 +205,7 @@
         <div class="e6-panel">
           <span class="e6-label">Posterior-mean loss</span>
           <div class="e6-frame">
-            <img src="static/e6/posterior_mean_residual.webp"
+            <img src="static/e6/posterior_mean_residual.webp?v=k15-no7"
                  width="480" height="432" loading="lazy" decoding="async"
                  alt="Beamformed residual between the posterior mean and ground truth">
           </div>
@@ -214,7 +214,7 @@
         <div class="e6-panel">
           <span class="e6-label">posterior variance</span>
           <div class="e6-frame">
-            <img src="static/e6/posterior_rms_spread.webp"
+            <img src="static/e6/posterior_rms_spread.webp?v=k15-no7"
                  width="480" height="432" loading="lazy" decoding="async"
                  alt="Beamformed posterior root-mean-square spread">
           </div>
@@ -257,8 +257,8 @@
 <script src="static/js/dps-viewer.js"></script>
 <script src="static/gallery/manifest.js"></script>
 <script src="static/js/gallery-viewer.js"></script>
-<script src="static/e6/manifest.js"></script>
-<script src="static/js/e6-viewer.js"></script>
+<script src="static/e6/manifest.js?v=k15-no7"></script>
+<script src="static/js/e6-viewer.js?v=k15-no7"></script>
 <script src="static/js/main.js"></script>
 </body>
 </html>

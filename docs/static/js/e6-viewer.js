@@ -1,6 +1,6 @@
 /* E6 posterior ensemble viewer.
-   The 16 truth-scaled B-modes are packed into one 4x4 WebP atlas, so moving
-   the slider is an immediate canvas blit and never another network request. */
+   Fifteen retained truth-scaled B-modes are selected from one 4x4 WebP
+   atlas, so moving the slider is an immediate canvas blit. */
 
 (function () {
   "use strict";
@@ -23,6 +23,7 @@
   var tileHeight = manifest.tile[1];
   var count = manifest.samples.count;
   var columns = manifest.samples.cols;
+  var atlasIndices = manifest.samples.atlas_indices || null;
   var atlas = new Image();
   var ready = false;
   var started = false;
@@ -48,7 +49,7 @@
     );
     if (!ready) return;
 
-    var index = sample - 1;
+    var index = atlasIndices ? atlasIndices[sample - 1] : sample - 1;
     var sourceX = (index % columns) * tileWidth;
     var sourceY = Math.floor(index / columns) * tileHeight;
     context.clearRect(0, 0, tileWidth, tileHeight);
