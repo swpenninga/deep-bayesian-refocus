@@ -1,0 +1,233 @@
+/* Recorded wide-beam guidance sweep. Both canvases are cropped from one
+   animated GIF by zeta-viewer.js, so their cardiac motion cannot drift. */
+
+#guidance-sweep {
+  --zeta-w: min(100%, 52rem);
+}
+
+#guidance-sweep h2,
+.zeta-intro,
+.zeta-viewer {
+  width: var(--zeta-w);
+  margin-inline: auto;
+}
+
+.zeta-intro {
+  color: var(--muted);
+  max-width: 52rem;
+  margin-bottom: 1.4rem;
+}
+
+.zeta-viewer {
+  position: relative;
+  margin-bottom: 1.5rem;
+  --thumb: 14px;
+}
+
+.zeta-stage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: end;
+}
+
+.zeta-panel {
+  min-width: 0;
+}
+
+.zeta-control-placeholder,
+.zeta-control {
+  min-height: 3.15rem;
+  margin-bottom: 0.6rem;
+}
+
+.zeta-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.zeta-control label,
+.zeta-readout,
+.zeta-ticks {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.zeta-control label {
+  color: var(--faint);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+  padding-top: 0.1rem;
+  white-space: nowrap;
+}
+
+.zeta-control i,
+.zeta-readout i {
+  font-family: var(--font-serif);
+  font-size: 1.15em;
+  text-transform: none;
+}
+
+.zeta-slider-wrap {
+  min-width: 0;
+}
+
+.zeta-slider {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 3px;
+  margin: 0.35rem 0 0;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  background: var(--line);
+  cursor: pointer;
+}
+
+.zeta-slider:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.zeta-slider::-webkit-slider-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  -webkit-appearance: none;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: grab;
+}
+
+.zeta-slider::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  box-sizing: border-box;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--text);
+  cursor: grab;
+}
+
+.zeta-slider:focus-visible {
+  outline: 2px solid var(--accent-dim);
+  outline-offset: 4px;
+}
+
+.zeta-ticks {
+  position: relative;
+  height: 1em;
+  margin-top: 0.45rem;
+  color: var(--faint);
+  font-size: 0.58rem;
+}
+
+.zeta-ticks span {
+  position: absolute;
+  top: 0;
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--i) / var(--n));
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.zeta-readout {
+  min-width: 4rem;
+  color: var(--text);
+  line-height: 1;
+  padding-top: 0.1rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.zeta-frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #000;
+  line-height: 0;
+}
+
+.zeta-frame canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.zeta-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  background: var(--surface);
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.zeta-viewer.is-ready .zeta-loading {
+  display: none;
+}
+
+.zeta-viewer.is-failed .zeta-loading {
+  font-size: 0;
+}
+
+.zeta-viewer.is-failed .zeta-loading::after {
+  content: "could not load sweep";
+  font-size: 0.72rem;
+}
+
+/* The browser's animated decoder advances this single source. It remains in
+   the render tree but outside the viewport; display:none can freeze animated
+   images in some engines. */
+.zeta-source {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: auto;
+  height: auto;
+  opacity: 0.001;
+  pointer-events: none;
+}
+
+.zeta-viewer figcaption {
+  margin-inline: auto;
+}
+
+@media (max-width: 760px) {
+  #guidance-sweep {
+    --zeta-w: 100%;
+  }
+
+  .zeta-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .zeta-control-placeholder {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .zeta-control {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .zeta-readout {
+    grid-column: 1 / -1;
+    text-align: right;
+  }
+
+  .zeta-ticks {
+    font-size: 0.52rem;
+  }
+}

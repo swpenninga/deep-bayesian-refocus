@@ -24,6 +24,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="static/css/style.css">
 <link rel="stylesheet" href="static/css/e6-viewer.css">
+<link rel="stylesheet" href="static/css/zeta-viewer.css">
 </head>
 <body>
 
@@ -120,6 +121,68 @@
 
     </figure>
 
+  </div>
+</section>
+
+<!-- ===================== guidance sweep ===================== -->
+<section id="guidance-sweep">
+  <div class="wrap">
+    <h2>Slide through the guidance strength</h2>
+
+    <p class="zeta-intro">
+      The measurement stays fixed at 40 harmonic wide beams. Move
+      <i>&zeta;</i> to see how the likelihood guidance changes the recovered
+      cine; both panels remain on the same playback clock.
+    </p>
+
+    <figure class="zeta-viewer" id="zeta-viewer"
+            data-src="static/zeta/wide_harm_nb40_zeta_sweep.gif"
+            data-zetas="0.2,0.4,0.6,0.8,1,1.2,1.4,1.6"
+            data-panels="10" data-measurement-panel="1"
+            data-first-zeta-panel="2"
+            data-panel-boundaries="0,333,614,896,1177,1459,1740,2022,2303,2585,2864">
+
+      <div class="zeta-stage">
+        <div class="zeta-panel">
+          <div class="zeta-control-placeholder" aria-hidden="true"></div>
+          <div class="zeta-frame">
+            <canvas data-zeta="measurement" width="281" height="331" role="img"
+                    aria-label="Measurement from 40 harmonic wide beams"></canvas>
+            <div class="zeta-loading">loading sweep</div>
+          </div>
+        </div>
+
+        <div class="zeta-panel">
+          <div class="zeta-control">
+            <label for="zeta-slider">guidance <i>&zeta;</i></label>
+            <div class="zeta-slider-wrap">
+              <input class="zeta-slider" data-zeta="slider" id="zeta-slider"
+                     type="range" min="0" max="7" step="1" value="0"
+                     aria-label="Guidance strength" disabled>
+              <div class="zeta-ticks" data-zeta="ticks" aria-hidden="true"></div>
+            </div>
+            <output class="zeta-readout" data-zeta="readout"
+                    for="zeta-slider" aria-live="polite"><i>&zeta;</i> = 0.2</output>
+          </div>
+          <div class="zeta-frame">
+            <canvas data-zeta="reconstruction" width="282" height="331" role="img"
+                    aria-label="DPS and SeqDiff reconstruction at guidance strength 0.2"></canvas>
+            <div class="zeta-loading">loading sweep</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kept in the document so the browser advances this one animated
+           source. JavaScript crops both visible canvases from its current
+           frame in one draw call; changing zeta never replaces its src. -->
+      <img class="zeta-source" data-zeta="source" alt="" aria-hidden="true">
+
+      <figcaption>
+        One recorded cardiac sequence, reconstructed with <i>T</i> = 1000,
+        <i>t</i><sub>0</sub> = 0.5 and one posterior sample per frame. The
+        slider changes only the displayed reconstruction; time never resets.
+      </figcaption>
+    </figure>
   </div>
 </section>
 
@@ -255,6 +318,7 @@
 
 <script src="static/dps/manifest.js"></script>
 <script src="static/js/dps-viewer.js"></script>
+<script src="static/js/zeta-viewer.js"></script>
 <script src="static/gallery/manifest.js"></script>
 <script src="static/js/gallery-viewer.js"></script>
 <script src="static/e6/manifest.js?v=k15-no7"></script>
