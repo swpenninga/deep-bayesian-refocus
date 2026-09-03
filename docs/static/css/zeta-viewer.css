@@ -1,27 +1,19 @@
-/* Recorded wide-beam guidance sweep. Both canvases are cropped from one
-   animated GIF by zeta-viewer.js, so their cardiac motion cannot drift. */
+/* Axes-free, synchronized guidance-strength GIFs. */
 
 #guidance-sweep {
   --zeta-w: min(100%, 52rem);
 }
 
 #guidance-sweep h2,
-.zeta-intro,
 .zeta-viewer {
   width: var(--zeta-w);
   margin-inline: auto;
 }
 
-.zeta-intro {
-  color: var(--muted);
-  max-width: 52rem;
-  margin-bottom: 1.4rem;
-}
-
 .zeta-viewer {
-  position: relative;
   margin-bottom: 1.5rem;
   --thumb: 14px;
+  --zeta-panels: 9;
 }
 
 .zeta-stage {
@@ -37,38 +29,15 @@
 
 .zeta-control-placeholder,
 .zeta-control {
-  min-height: 3.15rem;
+  min-height: 2.25rem;
   margin-bottom: 0.6rem;
 }
 
 .zeta-control {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: 0.75rem;
-}
-
-.zeta-control label,
-.zeta-readout,
-.zeta-ticks {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-}
-
-.zeta-control label {
-  color: var(--faint);
-  letter-spacing: 0.05em;
-  line-height: 1;
-  text-transform: uppercase;
-  padding-top: 0.1rem;
-  white-space: nowrap;
-}
-
-.zeta-control i,
-.zeta-readout i {
-  font-family: var(--font-serif);
-  font-size: 1.15em;
-  text-transform: none;
 }
 
 .zeta-slider-wrap {
@@ -124,6 +93,7 @@
   height: 1em;
   margin-top: 0.45rem;
   color: var(--faint);
+  font-family: var(--font-mono);
   font-size: 0.58rem;
 }
 
@@ -137,33 +107,49 @@
 
 .zeta-readout {
   min-width: 4rem;
-  color: var(--text);
-  line-height: 1;
   padding-top: 0.1rem;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1;
   text-align: right;
   white-space: nowrap;
+}
+
+.zeta-readout i {
+  font-family: var(--font-serif);
+  font-size: 1.15em;
 }
 
 .zeta-frame {
   position: relative;
   overflow: hidden;
+  aspect-ratio: 261 / 183;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #000;
   line-height: 0;
 }
 
-.zeta-frame canvas {
+/* Both elements display the same nine-panel animated GIF. The wrapper reveals
+   exactly one panel, and JavaScript translates only the right strip. Since src
+   never changes, selecting another zeta cannot restart the cine. */
+.zeta-frame .zeta-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
-  width: 100%;
-  height: auto;
+  width: calc(var(--zeta-panels) * 100%);
+  max-width: none;
+  height: 100%;
+  border-radius: 0;
+  transform: translateX(0);
 }
 
 .zeta-loading {
   position: absolute;
   inset: 0;
   display: grid;
-  min-height: 16rem;
   place-items: center;
   background: var(--surface);
   color: var(--faint);
@@ -186,23 +172,6 @@
   font-size: 0.72rem;
 }
 
-/* The browser's animated decoder advances this single source. It remains in
-   the render tree but outside the viewport; display:none can freeze animated
-   images in some engines. */
-.zeta-source {
-  position: fixed;
-  top: 0;
-  left: -10000px;
-  width: auto;
-  height: auto;
-  opacity: 0.001;
-  pointer-events: none;
-}
-
-.zeta-viewer figcaption {
-  margin-inline: auto;
-}
-
 @media (max-width: 760px) {
   #guidance-sweep {
     --zeta-w: 100%;
@@ -214,20 +183,5 @@
 
   .zeta-control-placeholder {
     display: none;
-  }
-}
-
-@media (max-width: 420px) {
-  .zeta-control {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .zeta-readout {
-    grid-column: 1 / -1;
-    text-align: right;
-  }
-
-  .zeta-ticks {
-    font-size: 0.52rem;
   }
 }
