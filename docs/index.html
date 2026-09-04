@@ -135,7 +135,7 @@
     <h2>Guidance strength</h2>
 
     <p class="lead">
-      The diffusion process is guided by measurements, its reliance on them weighted by the guidance strength <i class="sym">&zeta;</i>. The effect is most obvious for <i>in vivo</i> data, which is out of distribution for the model prior. You will see that a very small <i class="sym">&zeta;</i> ignores the recording, and a very large <i class="sym">&zeta;</i> pushes the diffusion model off-manifold and introduces artifacts.
+      The diffusion process is guided by measurements, its reliance on them weighted by the guidance strength <i class="sym">&zeta;</i>. The effect is most clear for <i>in vivo</i> data, which is out of distribution for the model's training data. You will see that with a very small <i class="sym">&zeta;</i> the model reverts to the prior, while a larger <i class="sym">&zeta;</i> pushes the process off-manifold and introduces artifacts.
     </p>
 
     <figure class="zeta-viewer" id="zeta-viewer"
@@ -275,10 +275,10 @@
 <!-- ===================== posterior uncertainty ===================== -->
 <section id="uncertainty">
   <div class="wrap">
-    <h2>Uncertainty tracks reconstruction error</h2>
+    <h2>Posterior variance tracks reconstruction error</h2>
 
     <p class="lead">
-      Here we use 8 focused beams, and sample 15 multistatic data sets. Watch how the posterior samples do not pin down the speckle, and how the posterior variance aligns with the loss, showing the epistemic uncertainty. The black lines show that all posterior samples agree on the focal points of the transmits!
+      Here we use 8 focused beams, and sample 15 multistatic data sets. The posterior variance aligns with the loss, a depiction of the epistemic uncertainty. Note that the samples align in the focal points!
     </p>
 
     <figure class="e6" id="e6" data-assets="static/e6/">
