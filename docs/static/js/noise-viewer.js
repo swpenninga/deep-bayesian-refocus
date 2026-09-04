@@ -1,10 +1,10 @@
 /* Bayesian REFoCUS - noise robustness.
 
-   Eight B-modes of one subject at one transmit count: a row per encoding
+   Six B-modes of one subject at one transmit count: a row per encoding
    (focused above, Hadamard below), and along each row the noiseless truth, the
-   measurement the sampler is handed, the Bayesian REFoCUS posterior mean, and
-   the oracle Tikhonov baseline. Three controls move through the E3 grid --
-   measurement SNR, transmit count Nb, and subject.
+   measurement the sampler is handed, and the Bayesian REFoCUS posterior mean.
+   Three controls move through the E3 grid -- measurement SNR, transmit count
+   Nb, and subject.
 
    Assets are WebP sprite atlases (see eval/visualizations/e3_noise_web.py in
    the research repo). One atlas holds every SNR of BOTH encodings for one
@@ -13,9 +13,9 @@
    figure exists for. Only subject and Nb fetch, and the neighbours of the
    current cell are prefetched so those rarely stall either.
 
-   All eight are drawn into ONE canvas rather than eight elements, sized to fit
-   the viewport in both axes: the figure is a comparison, so it is worth
-   nothing if the reader has to scroll to see half of it.
+   All six are drawn into ONE canvas rather than six elements, sized to fit the
+   viewport in both axes: the figure is a comparison, so it is worth nothing if
+   the reader has to scroll to see half of it.
 
    Every tile was written on the same fixed [-50, 0] dB window, so what changes
    between two panels is the recovery and not the display gain. The truth
@@ -35,14 +35,20 @@
   var TW = M.tile[0], TH = M.tile[1];
 
   /* Column order, and it carries the argument: what was there, what was
-     measured, what the posterior recovered, what the baseline recovered.
-     "truth" is frame-only and comes from its own strip; the rest are addressed
-     in the sweep atlas by their index in M.methods. */
+     measured of it, what the posterior recovered. "truth" is frame-only and
+     comes from its own strip; the rest are addressed in the sweep atlas by
+     their index in M.methods.
+
+     The oracle Tikhonov baseline the atlas still carries is deliberately not
+     drawn. On the Hadamard row it is the adjoint EXACTLY -- that operator has
+     one repeated singular value, so its Tikhonov filter is a scalar for any
+     gamma and the B-mode normalisation divides that scalar out -- which put
+     two identical panels side by side and read as a broken figure. Restoring
+     it is one entry here. */
   var COLS = [
     { key: "truth", strip: "truth", label: "ground truth" },
     { key: "adjoint", method: "adjoint", label: "model input" },
-    { key: "dps", method: "dps", label: "Bayesian REFoCUS", ours: true },
-    { key: "tikhonov", method: "tikhonov", label: "oracle Tikhonov" }
+    { key: "dps", method: "dps", label: "Bayesian REFoCUS", ours: true }
   ];
 
   /* All lower case, including hadamard: these read as a set of options, and

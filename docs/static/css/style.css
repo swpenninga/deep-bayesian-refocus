@@ -416,12 +416,15 @@ footer p { margin: 0 0 0.5rem; }
 
 .gal-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.9rem 2rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem 2rem;
   align-items: end;
   margin-bottom: 1rem;
 }
-.gal-ctl-nb { grid-row: span 2; }
+/* The transmit-count sweep is the axis this panel exists for, so it gets its
+   own full width above the two selectors. The pair below it runs coarse to
+   fine -- which sequence was fired, then which subject it was fired at. */
+.gal-ctl-nb { grid-column: 1 / -1; }
 
 .gal-label {
   display: block;
@@ -552,5 +555,5 @@ footer p { margin: 0 0 0.5rem; }
 
 @media (max-width: 900px) {
   .gal-controls { grid-template-columns: minmax(0, 1fr); }
-  .gal-ctl-nb { grid-row: auto; }
+  .gal-ctl-nb { grid-column: auto; }
 }

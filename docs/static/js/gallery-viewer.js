@@ -1,9 +1,9 @@
 /* Bayesian REFoCUS - recovery gallery.
 
-   Five B-modes of one subject, in two rows: what goes in (the complete
-   multistatic acquisition, and the encoded measurements the sampler actually
-   sees) above the three decodes of those measurements. Three controls move
-   through the E2 grid -- subject, transmit sequence, and the transmit count Nb.
+   Three B-modes of one subject in one row: the complete multistatic
+   acquisition, the encoded measurements the sampler actually sees, and the
+   posterior mean recovered from them. Three controls move through the E2 grid
+   -- the transmit count Nb, the transmit sequence, and the subject.
 
    Assets are WebP sprite atlases (see eval/visualizations/e2_gallery_web.py in
    the research repo). One atlas holds every Nb of every method for one
@@ -11,12 +11,11 @@
    a request; only scene and encoding fetch, and the neighbours of the current
    cell are prefetched so those rarely stall either.
 
-   All five are drawn into ONE canvas rather than five elements, sized to fit
+   All three are drawn into ONE canvas rather than three elements, sized to fit
    the viewport in BOTH axes: the figure is a comparison, so it is worth nothing
-   if the reader has to scroll to see half of it. The 2-then-3 split is fixed
-   because it carries the meaning (inputs above, recoveries below), so the tile
-   scale is set by the wider row and whichever of the width and height budgets
-   binds first.
+   if the reader has to scroll to see half of it. ROWS below is still a list of
+   rows rather than a flat list of columns, so restoring a second row of
+   baselines costs one entry and no layout work.
 
    Every tile was written on the same fixed [-50, 0] dB window, so what changes
    between two panels is the recovery and not the display gain. */
@@ -33,15 +32,23 @@
   var BASE = root.dataset.assets || "static/gallery/";
   var TW = M.tile[0], TH = M.tile[1];
 
-  /* Two rows, and the split is the point: what is measured, then what is
-     recovered from it. "input" is frame-only and comes from its own strip; the
-     rest are addressed in the sweep atlas by their index in M.methods. */
+  /* One row, read left to right: what was there, what was measured of it, what
+     the posterior recovered. "input" is frame-only and comes from its own
+     strip; the rest are addressed in the sweep atlas by their index in
+     M.methods.
+
+     The linear baselines the atlas still carries -- oracle Tikhonov and the
+     ramp-filtered adjoint -- are deliberately not drawn. Adding a column costs
+     every other column its width, and these two buy little on a qualitative
+     page: for the Hadamard sequence oracle Tikhonov is the adjoint exactly
+     (its operator has one repeated singular value, so the Tikhonov filter is a
+     scalar and the B-mode normalisation divides it out), and for the rest the
+     two sit within a fraction of a dB of each other over most of the image.
+     They remain in the atlas, so restoring either is one entry here. */
   var ROWS = [
     [{ key: "input", strip: "input", label: "multistatic data set" },
-     { key: "adjoint", method: "adjoint", label: "measurements" }],
-    [{ key: "tikhonov", method: "tikhonov", label: "oracle Tikhonov" },
-     { key: "dps", method: "dps", label: "Bayesian REFoCUS", ours: true },
-     { key: "ramp", method: "ramp", label: "ramp-filtered adjoint" }]
+     { key: "adjoint", method: "adjoint", label: "measurements" },
+     { key: "dps", method: "dps", label: "Bayesian REFoCUS", ours: true }]
   ];
   var NCOL = Math.max.apply(null, ROWS.map(function (r) { return r.length; }));
 
@@ -78,7 +85,7 @@
                                                    // from it into the sparse
                                                    // regime that is the point.
   var ready = false;
-  var rows = 2, drawW = 0, drawH = 0;
+  var rows = ROWS.length, drawW = 0, drawH = 0;
 
   /* ---- asset loading ----------------------------------------------------
      Only the strips are required to boot. Sweep atlases are fetched per cell
@@ -137,7 +144,7 @@
     var budgetH = Math.max(200, window.innerHeight - ctlH - 150);
 
     rows = ROWS.length;
-    // Both rows share one tile size -- a comparison in which the inputs were
+    // Every row shares one tile size -- a comparison in which the inputs were
     // drawn larger than the recoveries would be reading a difference that is
     // not in the data -- so the widest row sets the width budget.
     var scale = Math.min((availW - (NCOL - 1) * GAP) / NCOL / TW,
@@ -176,8 +183,8 @@
 
     var full = NCOL * drawW + (NCOL - 1) * GAP;
     ROWS.forEach(function (row, r) {
-      // A row with fewer tiles is centred under the wider one rather than left
-      // ragged, so the two rows read as one block.
+      // A row with fewer tiles than the widest is centred under it rather than
+      // left ragged, so several rows still read as one block.
       var rowW = row.length * drawW + (row.length - 1) * GAP;
       var x0 = Math.round((full - rowW) / 2);
       var y = r * (drawH + LABEL_H + GAP_Y);
