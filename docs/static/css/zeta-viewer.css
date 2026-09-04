@@ -4,11 +4,10 @@
   --zeta-w: min(100%, 52rem);
 }
 
-/* Capped in width but flush left, matching the heading and intro prose above
-   it and every other section's figure. */
+/* Capped in width and centred, like every other figure on the page. */
 .zeta-viewer {
   width: var(--zeta-w);
-  margin-inline: 0;
+  margin-inline: auto;
   margin-bottom: 1.5rem;
   --thumb: 14px;
   --zeta-panels: 8;

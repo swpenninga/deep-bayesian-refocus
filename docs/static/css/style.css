@@ -52,6 +52,7 @@ h2 {
   font-size: 1.6rem;
   margin: 0 0 1.5rem;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
 p { margin: 0 0 1.1rem; }
@@ -63,8 +64,9 @@ p { margin: 0 0 1.1rem; }
    full width of the wrapper. */
 .lead {
   max-width: var(--measure);
-  margin: -0.9rem 0 1.6rem;
+  margin: -0.9rem auto 1.6rem;
   color: var(--muted);
+  text-align: center;
 }
 /* Maths set in the serif face, at the slightly larger size it needs to sit
    level with the sans text around it. Same treatment as the zeta readout. */
@@ -246,6 +248,9 @@ figcaption b { color: var(--text); font-weight: 600; }
   color: var(--muted);
   margin: 0;
 }
+/* Explicitly left, against the centred h2 above it: a centred code block is
+   unreadable, and every ancestor here is now centred. */
+.bibtex { text-align: left; }
 .bibtex code { white-space: pre; }
 
 .copy-btn {
@@ -268,6 +273,7 @@ footer {
   padding: 2.5rem 0 3.5rem;
   font-size: 0.85rem;
   color: var(--faint);
+  text-align: center;
 }
 footer p { margin: 0 0 0.5rem; }
 
@@ -291,10 +297,8 @@ footer p { margin: 0 0 0.5rem; }
    480/439 of the tile, 3.4rem is the controls row (2.3 tall + 1.1 margin) and
    1.25rem the grid gap. */
 #trajectory { --dps-w: min(100%, 52rem, calc((62vh - 3.4rem) * 1.82 + 1.25rem)); }
-/* Capped in width but flush left, so the figure starts on the same line as the
-   heading and the intro prose above it -- and as every other section's figure.
-   The heading is left to the ordinary h2 rule for the same reason. */
-.dps { width: var(--dps-w); margin: 0; }
+/* Capped in width and centred, like every other figure on the page. */
+.dps { width: var(--dps-w); margin: 0 auto; }
 
 .dps-stage {
   display: grid;
@@ -560,6 +564,7 @@ footer p { margin: 0 0 0.5rem; }
 .gal.is-busy .gal-stage { opacity: 0.55; transition: opacity 0.15s ease; }
 
 .gal-loading {
+  text-align: center;
   color: var(--faint);
   font-size: 0.72rem;
   letter-spacing: 0.06em;

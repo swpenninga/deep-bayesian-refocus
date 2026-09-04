@@ -145,6 +145,7 @@
 
 .noise-loading {
   display: none;
+  text-align: center;
   color: var(--faint);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
