@@ -57,6 +57,15 @@
      capitalising the one that happens to be a surname breaks that. */
   var ENC_LABEL = { focused: "focused", hadamard: "hadamard" };
 
+  /* Show only the top SHOW of every tile. The last rows of the beamforming
+     grid sit at the edge of the reconstruction's valid region, and the
+     posterior fills that boundary with a bright arc that is in neither the
+     truth nor the measurement -- an artifact of where the image was cut, not a
+     result. Cropping is done HERE rather than in the export so the pixels stay
+     in the atlas and the fraction can be retuned without a re-export. */
+  var SHOW = 0.97;
+  var TH_SHOWN = Math.round(TH * SHOW);
+
   // The transmit count is fixed, so the atlas axis is pinned rather than
   // controlled. The export writes one entry; index 0 is that entry.
   var NBI = 0;
@@ -142,12 +151,12 @@
 
     var scale = Math.min(
       (availW - GUTTER - (ncol - 1) * GAP) / ncol / TW,
-      (budgetH - LABEL_H - (nrow - 1) * GAP_Y) / nrow / TH);
+      (budgetH - LABEL_H - (nrow - 1) * GAP_Y) / nrow / TH_SHOWN);
     // Never draw a tile larger than the pixels behind it: past 1:1 the atlas
     // is only being interpolated, which costs sharpness and buys no detail.
     scale = Math.min(scale, 1);
     drawW = Math.max(1, Math.floor(TW * scale));
-    drawH = Math.max(1, Math.floor(TH * scale));
+    drawH = Math.max(1, Math.floor(TH_SHOWN * scale));
 
     var cssW = GUTTER + ncol * drawW + (ncol - 1) * GAP;
     var cssH = LABEL_H + nrow * drawH + (nrow - 1) * GAP_Y;
@@ -203,7 +212,7 @@
         var s = sourceFor(col, r);
         if (!s) return;
         var x = GUTTER + c * (drawW + GAP);
-        ctx.drawImage(s[0], s[1], s[2], TW, TH, x, y, drawW, drawH);
+        ctx.drawImage(s[0], s[1], s[2], TW, TH_SHOWN, x, y, drawW, drawH);
         // The figure's whole point is a comparison against one panel, so that
         // panel is outlined rather than left to be found by reading labels.
         if (col.ours) {

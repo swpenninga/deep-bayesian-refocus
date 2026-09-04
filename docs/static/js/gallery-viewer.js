@@ -72,6 +72,15 @@
     }))
     .map(function (e) { return M.encodings.indexOf(e); });
 
+  /* Show only the top SHOW of every tile. The last rows of the beamforming
+     grid sit at the edge of the reconstruction's valid region, and the
+     posterior fills that boundary with a bright arc that is in neither the
+     truth nor the measurement -- an artifact of where the image was cut, not a
+     result. Cropping is done HERE rather than in the export so the pixels stay
+     in the atlas and the fraction can be retuned without a re-export. */
+  var SHOW = 0.97;
+  var TH_SHOWN = Math.round(TH * SHOW);
+
   var GAP = 3;            // px between columns; enough to separate, not to divide
   var GAP_Y = 12;         // more between rows: a label needs air under the
                           // image above it or it reads as that image's caption
@@ -153,12 +162,12 @@
     // drawn larger than the recoveries would be reading a difference that is
     // not in the data -- so the widest row sets the width budget.
     var scale = Math.min((availW - (NCOL - 1) * GAP) / NCOL / TW,
-                         ((budgetH - (rows - 1) * GAP_Y) / rows - LABEL_H) / TH);
+                         ((budgetH - (rows - 1) * GAP_Y) / rows - LABEL_H) / TH_SHOWN);
     // Never draw a tile larger than the pixels behind it: past 1:1 the atlas
     // is only being interpolated, which costs sharpness and buys no detail.
     scale = Math.min(scale, 1);
     drawW = Math.max(1, Math.floor(TW * scale));
-    drawH = Math.max(1, Math.floor(TH * scale));
+    drawH = Math.max(1, Math.floor(TH_SHOWN * scale));
 
     var cssW = NCOL * drawW + (NCOL - 1) * GAP;
     var cssH = rows * (drawH + LABEL_H) + (rows - 1) * GAP_Y;
@@ -202,7 +211,7 @@
         ctx.fillText(col.label.toUpperCase(), x, y + LABEL_H - 5);
 
         if (!s) return;
-        ctx.drawImage(s[0], s[1], s[2], TW, TH, x, y + LABEL_H, drawW, drawH);
+        ctx.drawImage(s[0], s[1], s[2], TW, TH_SHOWN, x, y + LABEL_H, drawW, drawH);
         // The figure's whole point is a comparison against one panel, so that
         // panel is outlined rather than left to be found by reading labels.
         if (col.ours) {
