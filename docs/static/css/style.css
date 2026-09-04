@@ -291,10 +291,10 @@ footer p { margin: 0 0 0.5rem; }
    480/439 of the tile, 3.4rem is the controls row (2.3 tall + 1.1 margin) and
    1.25rem the grid gap. */
 #trajectory { --dps-w: min(100%, 52rem, calc((62vh - 3.4rem) * 1.82 + 1.25rem)); }
-.dps { width: var(--dps-w); margin: 0 auto; }
-/* The heading belongs to the figure, so it follows it in rather than sitting
-   out at the wrap edge on its own. */
-#trajectory h2 { width: var(--dps-w); margin-inline: auto; }
+/* Capped in width but flush left, so the figure starts on the same line as the
+   heading and the intro prose above it -- and as every other section's figure.
+   The heading is left to the ordinary h2 rule for the same reason. */
+.dps { width: var(--dps-w); margin: 0; }
 
 .dps-stage {
   display: grid;
