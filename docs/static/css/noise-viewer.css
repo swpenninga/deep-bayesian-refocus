@@ -169,13 +169,14 @@
   .noise-controls { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Ten labels need ~33px each and the track stops affording that at about this
-   width, below which they overlap into an unreadable smear. Thin them to the
-   two ends and the midpoint -- the readout beside the slider always carries
-   the exact value, so nothing is lost but the ruler's minor gradations. */
-@media (max-width: 560px) {
+/* Seven labels need ~33px each and the track stops affording that at about
+   this width, below which they overlap into an unreadable smear. Thin them to
+   the two ends and the midpoint -- the readout beside the slider always
+   carries the exact value, so nothing is lost but the minor gradations.
+   nth-child(4) is the middle of seven; it moves if the exported SNR set does. */
+@media (max-width: 420px) {
   .noise-ticks > span { display: none; }
   .noise-ticks > span:first-child,
-  .noise-ticks > span:nth-child(5),
+  .noise-ticks > span:nth-child(4),
   .noise-ticks > span:last-child { display: block; }
 }

@@ -71,9 +71,11 @@
   var ACCENT = "#7dd3fc", ACCENT_DIM = "#38598a";
   var MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
-  // Open at the headline SNR rather than at an extreme: it is the operating
-  // point every other figure on this page is drawn at, so the reader starts
-  // from the familiar cell and drags AWAY from it in either direction.
+  // Open at the headline SNR, which the export also makes the CLEAN end of the
+  // sweep: it is the operating point every other figure on this page is drawn
+  // at, and the recovery has visibly converged by it, so the reader starts
+  // from the familiar cell and drags left into the noise. Falls back to the
+  // first stop if a re-export drops this SNR.
   var HEADLINE_SNR = 10;
 
   function snrLabel(v) { return v === null ? "clean" : String(v); }

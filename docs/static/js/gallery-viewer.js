@@ -79,11 +79,16 @@
   var FAINT = "#6b7280", ACCENT = "#7dd3fc", ACCENT_DIM = "#38598a";
   var MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
-  var scene = 0, enc = 0, nbi = M.nb.length - 1;   // open at full Nb: the
-                                                   // agreement everyone expects,
-                                                   // so the slider moves AWAY
-                                                   // from it into the sparse
-                                                   // regime that is the point.
+  /* Open partway down the sweep rather than at either end. At the full 80 the
+     three panels agree and the figure has nothing to say until the reader
+     moves the slider; at Nb = 16 -- a fifth of a full acquisition -- the
+     measurement has visibly fallen apart while the posterior has not, which is
+     the whole claim, and the slider still runs both ways from there. Falls
+     back to the last Nb if a re-export drops this one. */
+  var OPEN_NB = 16;
+  var scene = 0, enc = 0;
+  var nbi = M.nb.indexOf(OPEN_NB);
+  if (nbi < 0) nbi = M.nb.length - 1;
   var ready = false;
   var rows = ROWS.length, drawW = 0, drawH = 0;
 
