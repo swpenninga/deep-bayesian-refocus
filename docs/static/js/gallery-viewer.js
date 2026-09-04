@@ -72,14 +72,39 @@
     }))
     .map(function (e) { return M.encodings.indexOf(e); });
 
-  /* Show only the top SHOW of every tile. The last rows of the beamforming
-     grid sit at the edge of the reconstruction's valid region, and the
-     posterior fills that boundary with a bright arc that is in neither the
-     truth nor the measurement -- an artifact of where the image was cut, not a
-     result. Cropping is done HERE rather than in the export so the pixels stay
-     in the atlas and the fraction can be retuned without a re-export. */
-  var SHOW = 0.97;
-  var TH_SHOWN = Math.round(TH * SHOW);
+  /* The beamformed grid has a circular valid-range boundary -- support.py's
+     image_mask is hypot(x, z) < VALID_RANGE_M -- and the posterior lays a thin
+     bright rim right on it that appears in neither the truth nor the
+     measurement. The paper's own qualitative figures mask that boundary away
+     (eval/e3/run.py draws through support.mask_image); the web export never
+     did, and that rim is the arc along the bottom of every recovery panel.
+
+     A horizontal crop cannot remove it. The boundary is a CURVE -- lowest in
+     the middle, rising to 0.87 of the tile at the edges -- so a straight cut
+     deep enough to clear it discards 13% of the image, and a shallow one just
+     slices the rim where it is brightest, leaving a harder line than before
+     (measured at the cut: 58/255 uncut, 136 at 0.97, 170 at 0.95). Clip to the
+     curve instead.
+
+     SUP_A/SUP_B are the semi-axes in FULL-GRID pixels -- an ellipse because
+     the grid's x and z spacings differ -- fitted to the exported support to
+     1.3px rms rather than recomputed from the scan geometry, and converted
+     below through whichever crop and tile size the manifest carries. KEEP is a
+     fraction of that radius: a radial profile puts the rim entirely in the
+     outer 3% (excess over truth ~9 levels across 0.975-0.985, ~0.4 levels
+     inside 0.965), so 0.965 takes the rim and nothing else. */
+  var SUP_A = 1190.1, SUP_B = 983.1, KEEP = 0.965;
+  var _cr = M.crop, _src = M.source_shape;
+  var _sx = TW / (_cr[3] - _cr[2]), _sy = TH / (_cr[1] - _cr[0]);
+  var SUP_CX = (_src[1] / 2 - _cr[2]) * _sx;   // tile px, on the array axis
+  var SUP_CY = -_cr[0] * _sy;                  // tile px; the arc is centred
+                                               // on the transducer face
+  var SUP_RX = SUP_A * KEEP * _sx;
+  var SUP_RY = SUP_B * KEEP * _sy;
+  // Nothing survives the clip below the mask's lowest point, so end the tile
+  // there rather than pad every panel with a strip of black.
+  var TH_SHOWN = Math.min(TH, Math.ceil(SUP_CY + SUP_RY) + 1);
+  var sX = 1, sY = 1;                          // dest px per source px; set in layout
 
   var GAP = 3;            // px between columns; enough to separate, not to divide
   var GAP_Y = 12;         // more between rows: a label needs air under the
@@ -168,6 +193,8 @@
     scale = Math.min(scale, 1);
     drawW = Math.max(1, Math.floor(TW * scale));
     drawH = Math.max(1, Math.floor(TH_SHOWN * scale));
+    sX = drawW / TW;
+    sY = drawH / TH_SHOWN;
 
     var cssW = NCOL * drawW + (NCOL - 1) * GAP;
     var cssH = rows * (drawH + LABEL_H) + (rows - 1) * GAP_Y;
@@ -211,7 +238,13 @@
         ctx.fillText(col.label.toUpperCase(), x, y + LABEL_H - 5);
 
         if (!s) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(x + SUP_CX * sX, y + LABEL_H + SUP_CY * sY,
+                    SUP_RX * sX, SUP_RY * sY, 0, 0, 2 * Math.PI);
+        ctx.clip();
         ctx.drawImage(s[0], s[1], s[2], TW, TH_SHOWN, x, y + LABEL_H, drawW, drawH);
+        ctx.restore();
         // The figure's whole point is a comparison against one panel, so that
         // panel is outlined rather than left to be found by reading labels.
         if (col.ours) {
