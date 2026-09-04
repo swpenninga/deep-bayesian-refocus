@@ -134,16 +134,6 @@
   text-align: center;
 }
 
-/* The axes the panel pins rather than controls, named once under the heading.
-   Sits with the prose, not with the controls: it is not something to operate. */
-.noise-note {
-  margin: -0.9rem 0 1.4rem;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-}
-
 /* ---- the images ---- */
 
 .noise-stage { text-align: center; }

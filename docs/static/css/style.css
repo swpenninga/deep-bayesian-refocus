@@ -56,6 +56,24 @@ h2 {
 
 p { margin: 0 0 1.1rem; }
 
+/* Section intro prose: one paragraph under the heading, above the figure.
+   Pulled up against the h2 (which carries 1.5rem of its own bottom margin) so
+   it reads as part of the heading block rather than as a floating paragraph,
+   and held to --measure because it is text, while the figures below it run the
+   full width of the wrapper. */
+.lead {
+  max-width: var(--measure);
+  margin: -0.9rem 0 1.6rem;
+  color: var(--muted);
+}
+/* Maths set in the serif face, at the slightly larger size it needs to sit
+   level with the sans text around it. Same treatment as the zeta readout. */
+.lead .sym {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.14em;
+}
+
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 

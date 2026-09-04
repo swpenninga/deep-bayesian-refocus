@@ -266,19 +266,6 @@
     snrOut.textContent = snr === null ? "noiseless" : snr + " dB";
   }
 
-  /* The two axes this panel pins rather than controls, stated once so the
-     reader is never guessing which cell they are looking at. Written from the
-     manifest rather than the markup, so a re-export cannot leave it lying. */
-  var note = root.querySelector("[data-noise=note]");
-  if (note) {
-    var nb = M.nb[NBI];
-    var pct = (100 * nb / M.n_tx_total).toFixed(
-      nb * 100 % M.n_tx_total === 0 ? 0 : 1);
-    note.textContent = (ENC_LABEL[M.encodings[0]] || M.encodings[0])
-      + " transmits · " + nb + " of " + M.n_tx_total
-      + " · " + pct + "% of a full acquisition";
-  }
-
   /* Fetch this subject's atlas, then its neighbours, so stepping through them
      is already resident. */
   function ensure() {
