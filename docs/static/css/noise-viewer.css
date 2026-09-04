@@ -1,6 +1,6 @@
 /* Noise robustness panel.
    Assets and behaviour: static/noise/ + static/js/noise-viewer.js.
-   The eight B-modes are one canvas the viewer sizes to the viewport, so the
+   The three B-modes are one canvas the viewer sizes to the viewport, so the
    only thing this file owns below the controls is centring it. The control
    idiom -- slider, ticks pinned to the thumb, pill chips -- is the recovery
    gallery's, deliberately: the two panels are read one after the other and a
@@ -10,18 +10,18 @@
 
 /* ---- controls ---- */
 
+/* Two controls, one row: the SNR sweep takes whatever the ten subject chips
+   beside it do not need, which at any usable width leaves the slider the
+   longer track of the two. */
 .noise-controls {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem 2rem;
   align-items: end;
   margin-bottom: 1.1rem;
 }
 
-/* The SNR sweep is the axis this panel exists for, so it gets its own full
-   width above the two selectors rather than a third of a crowded row. */
 .noise-ctl-snr {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   column-gap: 1rem;
@@ -134,15 +134,14 @@
   text-align: center;
 }
 
-.noise-sub {
-  margin: 0.45rem 0 0;
+/* The axes the panel pins rather than controls, named once under the heading.
+   Sits with the prose, not with the controls: it is not something to operate. */
+.noise-note {
+  margin: -0.9rem 0 1.4rem;
   color: var(--muted);
-  font-size: 0.8rem;
-}
-.noise-sub b {
-  color: var(--text);
   font-family: var(--font-mono);
-  font-weight: 400;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
 }
 
 /* ---- the images ---- */
@@ -168,7 +167,6 @@
 
 @media (max-width: 900px) {
   .noise-controls { grid-template-columns: minmax(0, 1fr); }
-  .noise-ctl-snr { grid-column: auto; }
 }
 
 /* Ten labels need ~33px each and the track stops affording that at about this

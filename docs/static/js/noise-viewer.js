@@ -1,26 +1,28 @@
 /* Bayesian REFoCUS - noise robustness.
 
-   Six B-modes of one subject at one transmit count: a row per encoding
-   (focused above, Hadamard below), and along each row the noiseless truth, the
-   measurement the sampler is handed, and the Bayesian REFoCUS posterior mean.
-   Three controls move through the E3 grid -- measurement SNR, transmit count
-   Nb, and subject.
+   Three B-modes of one subject at a fixed transmit count and sequence: the
+   noiseless truth, the measurement the sampler is handed, and the Bayesian
+   REFoCUS posterior mean recovered from it. Two controls move through the E3
+   grid -- measurement SNR, and subject.
 
    Assets are WebP sprite atlases (see eval/visualizations/e3_noise_web.py in
-   the research repo). One atlas holds every SNR of BOTH encodings for one
-   (subject, Nb) pair, so dragging the SNR slider is a canvas blit and never a
-   request -- and so is comparing the two rows, which are the comparison the
-   figure exists for. Only subject and Nb fetch, and the neighbours of the
-   current cell are prefetched so those rarely stall either.
+   the research repo). One atlas holds every SNR for one subject, so dragging
+   the slider is a canvas blit and never a request; only the subject fetches,
+   and its neighbours are prefetched so those rarely stall either.
 
-   All six are drawn into ONE canvas rather than six elements, sized to fit the
-   viewport in both axes: the figure is a comparison, so it is worth nothing if
-   the reader has to scroll to see half of it.
+   All three are drawn into ONE canvas rather than three elements, sized to fit
+   the viewport in both axes: the figure is a comparison, so it is worth
+   nothing if the reader has to scroll to see half of it.
 
    Every tile was written on the same fixed [-50, 0] dB window, so what changes
-   between two panels is the recovery and not the display gain. The truth
-   column is frame-only and is deliberately redrawn in both rows: each row is
-   then a complete statement on its own, read left to right. */
+   between two panels is the recovery and not the display gain.
+
+   The panel deliberately shows ONE cell of two axes E3 swept -- one encoding
+   and one transmit count -- rather than a control for each. Both are named in
+   the caption instead, and both are still axes in the manifest, so restoring
+   either is a re-export plus (for the encoding) nothing at all here: the draw
+   loop already runs one row per M.encodings entry and grows a gutter for their
+   names as soon as there is more than one. */
 
 (function () {
   "use strict";
@@ -39,12 +41,12 @@
      comes from its own strip; the rest are addressed in the sweep atlas by
      their index in M.methods.
 
-     The oracle Tikhonov baseline the atlas still carries is deliberately not
-     drawn. On the Hadamard row it is the adjoint EXACTLY -- that operator has
-     one repeated singular value, so its Tikhonov filter is a scalar for any
-     gamma and the B-mode normalisation divides that scalar out -- which put
-     two identical panels side by side and read as a broken figure. Restoring
-     it is one entry here. */
+     The oracle Tikhonov baseline is not exported any more. On the Hadamard
+     encoding it is the adjoint EXACTLY -- that operator has one repeated
+     singular value, so its Tikhonov filter is a scalar for any gamma and the
+     B-mode normalisation divides that scalar out -- and on the others it sits
+     within a fraction of a dB of it over most of the image. Drawing it put two
+     all-but-identical panels side by side and read as a broken figure. */
   var COLS = [
     { key: "truth", strip: "truth", label: "ground truth" },
     { key: "adjoint", method: "adjoint", label: "model input" },
@@ -55,11 +57,16 @@
      capitalising the one that happens to be a surname breaks that. */
   var ENC_LABEL = { focused: "focused", hadamard: "hadamard" };
 
+  // The transmit count is fixed, so the atlas axis is pinned rather than
+  // controlled. The export writes one entry; index 0 is that entry.
+  var NBI = 0;
+
   var GAP = 3;            // px between columns; enough to separate, not to divide
-  var GAP_Y = 4;          // and less between rows: the two encodings are one
-                          // block, not two figures stacked
+  var GAP_Y = 4;          // and less between rows, when there is more than one
   var LABEL_H = 16;       // strip reserved above the top row for column names
-  var GUTTER = 20;        // left gutter for the rotated encoding names
+  // A single row needs no gutter: there is nothing to tell apart, and the
+  // caption already names the encoding.
+  var GUTTER = M.encodings.length > 1 ? 20 : 0;
   var FAINT = "#6b7280", MUTED = "#9aa0a8";
   var ACCENT = "#7dd3fc", ACCENT_DIM = "#38598a";
   var MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
@@ -72,14 +79,13 @@
   function snrLabel(v) { return v === null ? "clean" : String(v); }
 
   var scene = 0;
-  var nbi = 0;
   var snri = Math.max(0, M.snr.indexOf(HEADLINE_SNR));
   var ready = false;
   var drawW = 0, drawH = 0;
 
   /* ---- asset loading ----------------------------------------------------
      Only the truth strip is required to boot. Sweep atlases are fetched per
-     cell and memoized; 20 of them is ~12 MB, which is not a page load. */
+     subject and memoized; 10 of them is ~3 MB, which is not a page load. */
 
   var images = {};
   var pending = {};
@@ -97,7 +103,7 @@
     return pending[name];
   }
 
-  function sweepName(s, n) { return M.sweeps[s * M.nb.length + n]; }
+  function sweepName(s) { return M.sweeps[s * M.nb.length + NBI]; }
 
   /* ---- atlas addressing -------------------------------------------------
      Row-major over (SNR, encoding, method), exactly as the exporter packs it. */
@@ -107,7 +113,7 @@
       var st = images[M[col.strip]];
       return st ? [st, scene * TW, 0] : null;
     }
-    var sw = images[sweepName(scene, nbi)];
+    var sw = images[sweepName(scene)];
     if (!sw) return null;
     var i = snri * M.cols
       + enci * M.methods.length + M.methods.indexOf(col.method);
@@ -166,8 +172,8 @@
     ctx.textBaseline = "alphabetic";
     ctx.imageSmoothingQuality = "high";
 
-    // Column names once, above the top row: repeating them over the second
-    // row would say the rows differ in something they do not.
+    // Column names once, above the top row: repeating them over a second row
+    // would say the rows differ in something they do not.
     ctx.textAlign = "left";
     COLS.forEach(function (col, c) {
       ctx.fillStyle = col.ours ? ACCENT : FAINT;
@@ -178,16 +184,18 @@
     M.encodings.forEach(function (enc, r) {
       var y = LABEL_H + r * (drawH + GAP_Y);
 
-      // The encoding names go in the gutter, turned on their side: a row
-      // heading in the flow above the images would push the two rows apart and
-      // break the block they are meant to read as.
-      ctx.save();
-      ctx.translate(fs + 1, y + drawH / 2);
-      ctx.rotate(-Math.PI / 2);
-      ctx.textAlign = "center";
-      ctx.fillStyle = MUTED;
-      ctx.fillText((ENC_LABEL[enc] || enc).toUpperCase(), 0, 0);
-      ctx.restore();
+      // With more than one encoding their names go in the gutter, turned on
+      // their side: a row heading in the flow above the images would push the
+      // rows apart and break the block they are meant to read as.
+      if (GUTTER) {
+        ctx.save();
+        ctx.translate(fs + 1, y + drawH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = "center";
+        ctx.fillStyle = MUTED;
+        ctx.fillText((ENC_LABEL[enc] || enc).toUpperCase(), 0, 0);
+        ctx.restore();
+      }
 
       COLS.forEach(function (col, c) {
         var s = sourceFor(col, r);
@@ -208,37 +216,43 @@
   /* ---- cell selection --------------------------------------------------- */
 
   var snrOut = root.querySelector("[data-noise=snrout]");
-  var nbOut = root.querySelector("[data-noise=nbout]");
-  var pctOut = root.querySelector("[data-noise=pct]");
 
   function readout() {
     var snr = M.snr[snri];
     snrOut.textContent = snr === null ? "noiseless" : snr + " dB";
-    var nb = M.nb[nbi];
-    nbOut.textContent = nb;
-    pctOut.textContent = (100 * nb / M.n_tx_total).toFixed(
-      nb * 100 % M.n_tx_total === 0 ? 0 : 1) + "% of a full acquisition";
   }
 
-  /* Fetch the cell's atlas, then the cells one step away, so the common moves
-     (flip the transmit count, step the subject) are already resident. */
+  /* The two axes this panel pins rather than controls, stated once so the
+     reader is never guessing which cell they are looking at. Written from the
+     manifest rather than the markup, so a re-export cannot leave it lying. */
+  var note = root.querySelector("[data-noise=note]");
+  if (note) {
+    var nb = M.nb[NBI];
+    var pct = (100 * nb / M.n_tx_total).toFixed(
+      nb * 100 % M.n_tx_total === 0 ? 0 : 1);
+    note.textContent = (ENC_LABEL[M.encodings[0]] || M.encodings[0])
+      + " transmits · " + nb + " of " + M.n_tx_total
+      + " · " + pct + "% of a full acquisition";
+  }
+
+  /* Fetch this subject's atlas, then its neighbours, so stepping through them
+     is already resident. */
   function ensure() {
-    var want = sweepName(scene, nbi);
+    var want = sweepName(scene);
     load(want).then(function () {
-      if (sweepName(scene, nbi) !== want) return;   // moved on while loading
+      if (sweepName(scene) !== want) return;   // moved on while loading
       root.classList.remove("is-busy");
       draw();
-      var nn = M.nb.length, ns = M.frames.length;
-      [[scene, (nbi + 1) % nn],
-       [(scene + 1) % ns, nbi], [(scene + ns - 1) % ns, nbi]]
-        .forEach(function (c) { load(sweepName(c[0], c[1])).catch(function () {}); });
+      var ns = M.frames.length;
+      [(scene + 1) % ns, (scene + ns - 1) % ns]
+        .forEach(function (s) { load(sweepName(s)).catch(function () {}); });
     }).catch(function () { root.classList.add("is-failed"); });
     if (!images[want]) root.classList.add("is-busy");
   }
 
-  function select(s, n, si) {
-    var moved = (s !== scene || n !== nbi);
-    scene = s; nbi = n; snri = si;
+  function select(s, si) {
+    var moved = (s !== scene);
+    scene = s; snri = si;
     readout();
     if (moved) ensure(); else draw();
   }
@@ -267,22 +281,16 @@
   }
 
   buttonGroup(
-    root.querySelector("[data-noise=nb]"),
-    M.nb.map(String),
-    function () { return nbi; },
-    function (i) { select(scene, i, snri); });
-
-  buttonGroup(
     root.querySelector("[data-noise=scene]"),
     M.frames.map(function (_, i) { return String(i + 1); }),
     function () { return scene; },
-    function (i) { select(i, nbi, snri); });
+    function (i) { select(i, snri); });
 
   var snrSlider = root.querySelector("[data-noise=snr]");
   snrSlider.max = M.snr.length - 1;
   snrSlider.value = snri;
   snrSlider.addEventListener("input", function () {
-    select(scene, nbi, +snrSlider.value);
+    select(scene, +snrSlider.value);
   });
 
   /* Tick labels under the slider, so the ten sampled levels are legible as the
@@ -308,7 +316,7 @@
   /* ---- start ------------------------------------------------------------ */
 
   function boot() {
-    Promise.all([M.truth, sweepName(scene, nbi)].map(load))
+    Promise.all([M.truth, sweepName(scene)].map(load))
       .then(function () {
         ready = true;
         root.classList.add("is-ready");

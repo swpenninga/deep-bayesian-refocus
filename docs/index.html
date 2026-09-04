@@ -219,6 +219,8 @@
   <div class="wrap">
     <h2>Robustness to measurement noise</h2>
 
+    <p class="noise-note" data-noise="note"></p>
+
     <figure class="noise" id="noise" data-assets="static/noise/">
 
       <div class="noise-controls">
@@ -233,15 +235,6 @@
           </div>
           <output class="noise-readout" data-noise="snrout" for="noise-snr"
                   aria-live="polite">10 dB</output>
-        </div>
-
-        <div class="noise-ctl">
-          <span class="noise-label" id="noise-nb-label">number of transmits</span>
-          <div class="noise-chips" data-noise="nb" role="group"
-               aria-labelledby="noise-nb-label"></div>
-          <p class="noise-sub">
-            <b data-noise="nbout">32</b> of 80 &middot; <span data-noise="pct"></span>
-          </p>
         </div>
 
         <div class="noise-ctl">
