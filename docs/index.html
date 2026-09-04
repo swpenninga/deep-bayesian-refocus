@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="static/css/style.css">
 <link rel="stylesheet" href="static/css/e6-viewer.css">
 <link rel="stylesheet" href="static/css/zeta-viewer.css">
+<link rel="stylesheet" href="static/css/noise-viewer.css">
 </head>
 <body>
 
@@ -213,6 +214,55 @@
   </div>
 </section>
 
+<!-- ===================== noise robustness ===================== -->
+<section id="noise-robustness">
+  <div class="wrap">
+    <h2>Robustness to measurement noise</h2>
+
+    <figure class="noise" id="noise" data-assets="static/noise/">
+
+      <div class="noise-controls">
+
+        <div class="noise-ctl noise-ctl-snr">
+          <label class="noise-label" for="noise-snr">measurement SNR</label>
+          <div class="noise-sliderwrap">
+            <input class="noise-slider" data-noise="snr" id="noise-snr"
+                   type="range" min="0" max="9" step="1" value="6"
+                   aria-label="Measurement SNR" disabled>
+            <div class="noise-ticks" data-noise="ticks" aria-hidden="true"></div>
+          </div>
+          <output class="noise-readout" data-noise="snrout" for="noise-snr"
+                  aria-live="polite">10 dB</output>
+        </div>
+
+        <div class="noise-ctl">
+          <span class="noise-label" id="noise-nb-label">transmits</span>
+          <div class="noise-chips" data-noise="nb" role="group"
+               aria-labelledby="noise-nb-label"></div>
+          <p class="noise-sub">
+            <b data-noise="nbout">32</b> of 80 &middot; <span data-noise="pct"></span>
+          </p>
+        </div>
+
+        <div class="noise-ctl">
+          <span class="noise-label" id="noise-scene-label">subject</span>
+          <div class="noise-chips noise-chips-num" data-noise="scene" role="group"
+               aria-labelledby="noise-scene-label"></div>
+        </div>
+
+      </div>
+
+      <div class="noise-stage" data-noise="stage">
+        <canvas data-noise="sheet"></canvas>
+      </div>
+
+      <div class="noise-loading"><span class="noise-loading-label">loading</span></div>
+
+    </figure>
+
+  </div>
+</section>
+
 <!-- ===================== posterior uncertainty ===================== -->
 <section id="uncertainty">
   <div class="wrap">
@@ -303,6 +353,8 @@
 <script src="static/js/zeta-viewer.js"></script>
 <script src="static/gallery/manifest.js"></script>
 <script src="static/js/gallery-viewer.js"></script>
+<script src="static/noise/manifest.js"></script>
+<script src="static/js/noise-viewer.js"></script>
 <script src="static/e6/manifest.js?v=k15-no7"></script>
 <script src="static/js/e6-viewer.js?v=k15-no7"></script>
 <script src="static/js/main.js"></script>

@@ -1,0 +1,183 @@
+/* Noise robustness panel.
+   Assets and behaviour: static/noise/ + static/js/noise-viewer.js.
+   The eight B-modes are one canvas the viewer sizes to the viewport, so the
+   only thing this file owns below the controls is centring it. The control
+   idiom -- slider, ticks pinned to the thumb, pill chips -- is the recovery
+   gallery's, deliberately: the two panels are read one after the other and a
+   second vocabulary between them would only be noticed as a difference. */
+
+.noise { margin: 0; --thumb: 14px; }
+
+/* ---- controls ---- */
+
+.noise-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem 2rem;
+  align-items: end;
+  margin-bottom: 1.1rem;
+}
+
+/* The SNR sweep is the axis this panel exists for, so it gets its own full
+   width above the two selectors rather than a third of a crowded row. */
+.noise-ctl-snr {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+}
+
+.noise-label {
+  display: block;
+  grid-column: 1 / -1;
+  margin-bottom: 0.45rem;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.noise-sliderwrap { min-width: 0; }
+
+.noise-slider {
+  display: block;
+  width: 100%;
+  /* Chrome's UA sheet puts 2px of margin on a range input, which offsets the
+     thumb track from the tick track by exactly that much. Zero it so the two
+     share an origin and the tick maths below lands on the thumb. */
+  margin: 0;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  background: var(--line);
+  cursor: pointer;
+}
+.noise-slider:disabled { opacity: 0.4; cursor: default; }
+.noise-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--thumb); height: var(--thumb);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: grab;
+}
+.noise-slider::-moz-range-thumb {
+  width: var(--thumb); height: var(--thumb);
+  box-sizing: border-box;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--text);
+  cursor: grab;
+}
+.noise-slider:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 4px; }
+
+/* Each tick sits exactly under the thumb position it names. The thumb centre
+   travels from thumb/2 to (track - thumb/2), NOT from 0 to 100%, so spacing
+   the labels evenly across the track leaves them drifting off the thumb at
+   both ends. --i and --n are set per label by the viewer. */
+.noise-ticks {
+  position: relative;
+  height: 1em;
+  margin-top: 0.35rem;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+}
+.noise-ticks > span {
+  position: absolute;
+  top: 0;
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--i) / var(--n));
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.noise-readout {
+  align-self: start;
+  min-width: 5.5rem;
+  padding-top: 0.05rem;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.noise-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.noise-chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.noise-chip:hover { color: var(--text); border-color: var(--accent-dim); }
+.noise-chip.is-on {
+  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+}
+.noise-chip:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 2px; }
+
+.noise-chips-num .noise-chip {
+  min-width: 1.9rem;
+  padding: 0.28rem 0.38rem;
+  text-align: center;
+}
+
+.noise-sub {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.noise-sub b {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+
+/* ---- the images ---- */
+
+.noise-stage { text-align: center; }
+.noise-stage canvas { display: inline-block; vertical-align: top; }
+
+/* A cell whose atlas is still in flight dims rather than blanking, so a slow
+   connection reads as latency and not as a broken figure. */
+.noise.is-busy .noise-stage { opacity: 0.55; transition: opacity 0.15s ease; }
+
+.noise-loading {
+  display: none;
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.noise:not(.is-ready) .noise-loading,
+.noise.is-failed .noise-loading { display: block; }
+.noise.is-failed .noise-loading-label { display: none; }
+.noise.is-failed .noise-loading::after { content: "could not load"; }
+
+@media (max-width: 900px) {
+  .noise-controls { grid-template-columns: minmax(0, 1fr); }
+  .noise-ctl-snr { grid-column: auto; }
+}
+
+/* Ten labels need ~33px each and the track stops affording that at about this
+   width, below which they overlap into an unreadable smear. Thin them to the
+   two ends and the midpoint -- the readout beside the slider always carries
+   the exact value, so nothing is lost but the ruler's minor gradations. */
+@media (max-width: 560px) {
+  .noise-ticks > span { display: none; }
+  .noise-ticks > span:first-child,
+  .noise-ticks > span:nth-child(5),
+  .noise-ticks > span:last-child { display: block; }
+}
