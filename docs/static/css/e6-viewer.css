@@ -1,0 +1,244 @@
+/* E6 posterior uncertainty panel.
+   Kept separate from style.css so work on the trajectory viewer can land
+   independently. Assets and behavior live in static/e6/ and e6-viewer.js. */
+
+#uncertainty {
+  /* Four panels across need more room than the old two-panel figure, but the
+     strip should still read as compact rather than spanning the full measure
+     -- 64rem leaves a little air inside .wrap's own 68rem cap. */
+  --e6-w: min(100%, 64rem);
+}
+
+#uncertainty h2,
+.e6 {
+  width: var(--e6-w);
+  margin-inline: auto;
+}
+
+.e6 {
+  margin-bottom: 1.5rem;
+}
+
+/* Two groups share the control row: the example chips choose which
+   acquisition is on screen, the slider steps through that example's draws.
+   The chips column is sized to its content so the slider keeps the rest --
+   it is the control a reader actually drags. */
+.e6-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem 2rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.e6-ctl {
+  min-width: 0;
+}
+
+.e6-ctl-label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.e6-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* Same pill as the gallery's numeric chips: these are bare numbers and read as
+   one set, so they get the monospaced, fixed-width treatment rather than the
+   wider word chips. */
+.e6-chip {
+  min-width: 1.9rem;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.28rem 0.38rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.1;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.e6-chip:hover { color: var(--text); border-color: var(--accent-dim); }
+
+.e6-chip.is-on {
+  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.e6-chip:focus-visible {
+  outline: 2px solid var(--accent-dim);
+  outline-offset: 2px;
+}
+
+.e6-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  /* Tighter than the gallery/zeta controls on purpose: at four panels per
+     row this control is squeezed into a ~244px column, and the label and
+     readout are fixed-width -- every pixel taken off the gutters goes
+     straight to the slider track without moving either text run, since the
+     label sits flush against the column's left edge and the readout is
+     right-aligned against its own (already tight) column. */
+  gap: 0.4rem;
+}
+
+.e6-control label,
+.e6-readout,
+.e6-ctl-label,
+.e6-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.e6-control label,
+.e6-ctl-label,
+.e6-label {
+  color: var(--faint);
+}
+
+.e6-readout {
+  /* Just past "15 / 15" (measured ~50px at this font), not the old 4.6rem --
+     that alone was giving away nearly a third of the slider's track. */
+  min-width: 3.3rem;
+  color: var(--text);
+  text-align: right;
+}
+
+.e6-slider {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--line);
+  cursor: pointer;
+}
+
+.e6-slider:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.e6-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: grab;
+}
+
+.e6-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid var(--bg);
+  cursor: grab;
+}
+
+.e6-slider:focus-visible {
+  outline: 2px solid var(--accent-dim);
+  outline-offset: 4px;
+}
+
+.e6-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.e6-panel {
+  min-width: 0;
+}
+
+.e6-label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.e6-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 10 / 9;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #000;
+  line-height: 0;
+}
+
+.e6-frame img,
+.e6-frame canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.e6-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.e6.is-ready .e6-loading {
+  display: none;
+}
+
+.e6.is-failed .e6-loading {
+  font-size: 0;
+}
+
+.e6.is-failed .e6-loading::after {
+  content: "could not load posterior samples";
+  font-size: 0.72rem;
+}
+
+@media (max-width: 900px) {
+  #uncertainty {
+    --e6-w: min(100%, 44rem);
+  }
+
+  .e6-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .e6-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  #uncertainty {
+    --e6-w: 100%;
+  }
+
+  .e6-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

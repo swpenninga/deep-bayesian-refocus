@@ -1,0 +1,165 @@
+/* In-vivo cine grid.
+   Kept out of style.css for the same reason as the other viewers: the panel
+   ships with its own assets (static/invivo/) and its own script. */
+
+#invivo {
+  --iv-w: min(100%, 64rem);
+}
+
+#invivo h2,
+.iv {
+  width: var(--iv-w);
+  margin-inline: auto;
+}
+
+.iv { margin-bottom: 1.5rem; }
+
+/* Two controls side by side, the transmit type first because it decides which
+   cards exist at all, and the transmit count to its right. Top-aligned rather
+   than baseline-aligned: the type chips are two rows deep, and baselines would
+   drop the count control to the bottom of them. */
+.iv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.6rem 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.iv-ctl {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.iv-label,
+.iv-panel-label,
+.iv-card-head {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.iv-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+/* The eight transmit types read as a 2x4 block rather than one long row.
+   Columns are sized to their own content, so the pills keep their shape. */
+.iv-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: start;
+}
+
+.iv-chip {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.1;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.iv-chip:hover { color: var(--text); border-color: var(--accent-dim); }
+.iv-chip.is-on {
+  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+}
+.iv-chip:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 2px; }
+
+/* The transmit counts are numbers and sit in a tighter, monospaced pill, as
+   the gallery's numeric chips do. */
+.iv-chips-num .iv-chip {
+  min-width: 2.4rem;
+  padding: 0.28rem 0.38rem;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+/* ---- the cards ---- */
+
+.iv-grid {
+  display: grid;
+  /* Two to a row inside the figure's 64rem, which puts a panel at ~250 px --
+     essentially 1:1 against the 240 px the assets carry, so the cines are as
+     large as their pixels allow and no larger. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+}
+
+.iv-card { margin: 0; }
+
+.iv-card-head {
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+/* One label per half of the cine, on the same two-column grid the image is
+   split by, so each sits over its own panel. */
+.iv-labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 0.2rem;
+}
+.iv-panel-label {
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.iv-panel-label.is-ours { color: var(--accent); }
+
+.iv-frame {
+  position: relative;
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  line-height: 0;
+}
+.iv-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The right half of the pair is the recovery. Drawn over the image rather
+   than baked into it, so the asset carries data and nothing else. */
+.iv-ours-outline {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  border: 1px solid var(--accent-dim);
+  pointer-events: none;
+}
+.iv-card.is-absent .iv-ours-outline { display: none; }
+
+/* A count a recording has not been computed at yet keeps its slot rather than
+   reflowing the grid. */
+.iv-card.is-absent .iv-frame {
+  aspect-ratio: 480 / 170;
+  background: var(--surface-2);
+}
+
+.iv-loading {
+  display: none;
+  text-align: center;
+  color: var(--faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.iv.is-failed .iv-loading {
+  display: block;
+}
+.iv.is-failed .iv-loading-label::after {
+  content: " \2014 assets unavailable";
+}

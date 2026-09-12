@@ -1,0 +1,63 @@
+/* Readiness occupies a fixed corner of a chip, so loading never shifts labels. */
+.has-readiness { position: relative; }
+.has-readiness::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: none;
+}
+.has-readiness[data-readiness="ready"]::after { background: var(--accent); }
+.has-readiness[data-readiness="loading"]::after {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--muted);
+  border-top-color: transparent;
+  animation: readiness-spin 1s linear infinite;
+}
+.readiness-key-global {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: .45rem;
+  margin-top: .45rem;
+  color: var(--muted);
+  font-size: .7rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.readiness-key { display: inline-flex; align-items: center; gap: .45rem; }
+.readiness-key > span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.iv-card.is-loading .iv-frame img { visibility: hidden; }
+@keyframes readiness-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .has-readiness[data-readiness="loading"]::after { animation: none; }
+}
+@media (forced-colors: active) {
+  .has-readiness[data-readiness="ready"]::after, .readiness-key > span {
+    background: ButtonText;
+    forced-color-adjust: none;
+  }
+}
+.has-readiness[aria-pressed="true"][data-readiness="ready"]::after {
+  background: var(--bg);
+}
+@media (forced-colors: active) {
+  .has-readiness[aria-pressed="true"][data-readiness="ready"]::after { background: ButtonText; }
+}
