@@ -33,8 +33,7 @@
 }
 
 .iv-label,
-.iv-panel-label,
-.iv-card-head {
+.iv-panel-label {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.04em;
@@ -94,11 +93,6 @@
 }
 
 .iv-card { margin: 0; }
-
-.iv-card-head {
-  color: var(--text);
-  margin-bottom: 0.35rem;
-}
 
 /* One label per half of the cine, on the same two-column grid the image is
    split by, so each sits over its own panel. */

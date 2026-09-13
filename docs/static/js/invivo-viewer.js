@@ -79,13 +79,6 @@
     var card = document.createElement("figure");
     card.className = "iv-card";
 
-    // The transmit type is the chip the reader just pressed, so the card
-    // says only whose recording it is.
-    var head = document.createElement("figcaption");
-    head.className = "iv-card-head";
-    head.textContent = record.subject;
-    card.appendChild(head);
-
     /* Two labels over one image: the halves are exactly equal, so a plain
        two-column grid puts each over its own panel. */
     var labels = document.createElement("div");
