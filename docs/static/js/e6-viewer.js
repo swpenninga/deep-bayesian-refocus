@@ -49,7 +49,12 @@
   slider.max = COUNT;
   slider.step = 1;
 
-  var mode = 0;                 /* index into M.modes */
+  /* The example the section opens on, named by id so that reordering the
+     chips does not silently move it. An absent or unknown id opens on the
+     first example. */
+  var mode = Math.max(0, M.modes.findIndex(function (m) {
+    return m.id === M.default_example;
+  }));                          /* index into M.modes */
   var sample = 1;               /* 1-based, as the reader sees it */
   var bundles = {};             /* mode id -> decoded images, or "failed" */
   var syncChips;
@@ -138,8 +143,9 @@
     drawSample();
   }
 
-  /* Warm the next two examples in presentation order. Do not wrap from the
-     first example back to the last; the strongest examples are first. */
+  /* Warm the next two examples in presentation order, without wrapping past
+     the last. Examples before the one the page opens on are left to load on
+     click, which is one chip away either way. */
   function prefetchNeighbours() {
     var n = M.modes.length;
     [mode + 1, mode + 2].filter(function (i) { return i < n; }).forEach(function (i) {
