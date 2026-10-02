@@ -1,0 +1,225 @@
+(function () {
+  "use strict";
+
+  var root = document.getElementById("dps");
+  if (!root) return;
+
+  var M = window.DPS_MANIFEST;
+  if (!M) { root.classList.add("is-failed"); return; }
+
+  var BASE = root.dataset.assets || "static/dps/";
+  var N = M.n_frames;
+
+  var stackCv = root.querySelector("[data-dps=stack]");
+  var bmodeCv = root.querySelector("[data-dps=bmode]");
+  var slider = root.querySelector("[data-dps=slider]");
+  var playBtn = root.querySelector("[data-dps=play]");
+  var bars = root.querySelectorAll("[data-dps=bar]");
+
+  var sctx = stackCv.getContext("2d");
+  var bctx = bmodeCv.getContext("2d");
+
+  var CARD_AR = 2.8;
+
+  var STROKE = M.slices.domain === "rf"
+    ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)";
+  var STEP_X = 0.30;
+  var STEP_Y = 0.075;
+  var PAD = 26;
+  var LABEL = 14;
+
+  var frame = 0;
+  var playing = false;
+  var ready = false;
+  var raf = null, lastTick = 0;
+  var FPS = 14;
+
+  var images = {};
+
+  function load(name) {
+    return new Promise(function (res, rej) {
+      var im = new Image();
+      im.decoding = "async";
+      im.onload = function () { images[name] = im; res(im); };
+      im.onerror = function () { rej(new Error(name)); };
+      im.src = BASE + name;
+    });
+  }
+
+  function loadAll() {
+    var names = M.bmode.atlases.concat(M.slices.atlases);
+    var done = 0;
+    return Promise.all(names.map(function (n) {
+      return load(n).then(function (im) {
+        done += 1;
+        var pct = (100 * done / names.length).toFixed(1) + "%";
+        bars.forEach(function (b) { b.style.width = pct; });
+        return im;
+      });
+    }));
+  }
+
+  function bmodeSrc(i) {
+    var cfg = M.bmode;
+    var a = Math.floor(i / cfg.per_atlas), k = i % cfg.per_atlas;
+    return [images[cfg.atlases[a]],
+            (k % cfg.cols) * cfg.tile[0],
+            Math.floor(k / cfg.cols) * cfg.tile[1]];
+  }
+
+  function sliceSrc(s, i) {
+    var cfg = M.slices;
+    return [images[cfg.atlases[s]],
+            (i % cfg.cols) * cfg.tile[0],
+            Math.floor(i / cfg.cols) * cfg.tile[1]];
+  }
+
+  function fit(cv, cssW, cssH) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.style.height = cssH + "px";
+    var w = Math.round(cssW * dpr), h = Math.round(cssH * dpr);
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+  }
+
+  function layout() {
+    var bw = bmodeCv.parentNode.clientWidth;
+    var bh = Math.round(bw * M.bmode.tile[1] / M.bmode.tile[0]);
+    fit(bmodeCv, bw, bh);
+
+    var sw = stackCv.parentNode.clientWidth;
+    var twoCol = window.matchMedia("(min-width: 821px)").matches;
+    var sh = twoCol ? bh : Math.round(Math.min(bh, sw * 1.45 + 40));
+    fit(stackCv, sw, sh);
+
+    draw();
+  }
+
+  function drawBmode() {
+    var w = bmodeCv.clientWidth, h = bmodeCv.clientHeight;
+    bctx.clearRect(0, 0, w, h);
+    if (!ready) return;
+    var s = bmodeSrc(frame);
+    bctx.imageSmoothingQuality = "high";
+    bctx.drawImage(s[0], s[1], s[2], M.bmode.tile[0], M.bmode.tile[1],
+                   0, 0, w, h);
+  }
+
+  function drawStack() {
+    var w = stackCv.clientWidth, h = stackCv.clientHeight;
+    sctx.clearRect(0, 0, w, h);
+    if (!ready) return;
+
+    var n = M.slices.tx.length;
+    var availW = w - 2 * PAD, availH = h - 2 * PAD - 2 * LABEL;
+    var spanX = 1 + (n - 1) * STEP_X;
+    var spanY = (1 + (n - 1) * STEP_Y) * CARD_AR;
+    var cardW = Math.min(availW / spanX, availH / spanY);
+    var cardH = cardW * CARD_AR;
+    var dx = cardW * STEP_X, dy = cardH * STEP_Y;
+
+    var x0 = PAD + (availW - cardW * spanX) / 2;
+    var y0 = PAD + LABEL + (availH - cardH * (1 + (n - 1) * STEP_Y)) / 2;
+
+    sctx.imageSmoothingQuality = "high";
+
+    for (var i = n - 1; i >= 0; i--) {
+      var x = x0 + i * dx;
+      var y = y0 + (n - 1 - i) * dy;
+      var s = sliceSrc(i, frame);
+      sctx.drawImage(s[0], s[1], s[2], M.slices.tile[0], M.slices.tile[1],
+                     x, y, cardW, cardH);
+      sctx.strokeStyle = STROKE;
+      sctx.lineWidth = 1;
+      sctx.strokeRect(x + 0.5, y + 0.5, cardW - 1, cardH - 1);
+    }
+
+    sctx.fillStyle = "rgba(154,160,168,0.9)";
+    sctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
+    sctx.textAlign = "left";
+    sctx.fillText("tx 0", x0, y0 + (n - 1) * dy + cardH + 13);
+    sctx.textAlign = "right";
+    sctx.fillText("tx " + M.slices.tx[n - 1], x0 + cardW * spanX, y0 - 5);
+  }
+
+  function draw() { drawBmode(); drawStack(); }
+
+  function setFrame(i, fromSlider) {
+    frame = Math.max(0, Math.min(N - 1, i | 0));
+    if (!fromSlider) slider.value = frame;
+    draw();
+  }
+
+  slider.addEventListener("input", function () {
+    setFrame(+slider.value, true);
+  });
+
+  function tick(ts) {
+    if (!playing) return;
+    if (ts - lastTick >= 1000 / FPS) {
+      lastTick = ts;
+      if (frame >= N - 1) { stop(); return; }
+      setFrame(frame + 1);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play() {
+    if (frame >= N - 1) setFrame(0);
+    playing = true;
+    playBtn.classList.add("is-playing");
+    playBtn.setAttribute("aria-label", "Pause");
+    lastTick = 0;
+    raf = requestAnimationFrame(tick);
+  }
+
+  function stop() {
+    playing = false;
+    playBtn.classList.remove("is-playing");
+    playBtn.setAttribute("aria-label", "Play");
+    if (raf) cancelAnimationFrame(raf);
+  }
+
+  playBtn.addEventListener("click", function () {
+    if (playing) stop(); else play();
+  });
+
+  slider.addEventListener("pointerdown", stop);
+
+  window.addEventListener("resize", layout);
+
+  var booted = false;
+  function boot() {
+    if (booted) return;
+    booted = true;
+    if (io) io.disconnect();
+    loadAll().then(function () {
+      ready = true;
+      root.classList.add("is-ready");
+      slider.disabled = false;
+      playBtn.disabled = false;
+      layout();
+    }).catch(function () {
+      root.classList.add("is-failed");
+    });
+  }
+
+  slider.max = N - 1;
+  slider.value = frame;
+  layout();
+
+  document.addEventListener("refocus:prefetch", boot, { once: true });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      if (entries.some(function (e) { return e.isIntersecting; })) {
+        io.disconnect();
+        boot();
+      }
+    }, { rootMargin: "0px" });
+    io.observe(root);
+  } else {
+    boot();
+  }
+})();
